@@ -1,0 +1,108 @@
+# Plik .rules dla IDE - projekt TherapyAssistance
+
+project:
+  name: TherapyAssistance
+  description: >
+    Aplikacja dla psychoterapeutów do zarządzania pacjentami, wizytami i notatkami z sesji.
+  stack:
+    backend:
+      language: python
+      framework: fastapi
+      server: uvicorn
+      database: postgres
+      orm: sqlalchemy
+      migrations: alembic
+      auth: jwt
+    frontend:
+      language: typescript
+      framework: react
+      bundler: vite
+      styling: tailwindcss
+      router: react-router
+      http_client: axios
+  devops:
+    docker: true
+    docker_compose: true
+    ports:
+      backend: 8000
+      frontend: 5173
+      db: 5432
+    env_file: .env
+
+rules:
+  backend:
+    models:
+      user:
+        fields:
+          - id: int
+          - email: str
+          - hashed_password: str
+          - created_at: datetime
+      patient:
+        fields:
+          - id: int
+          - name: str
+          - phone: str
+          - email: str
+          - notes: str
+          - created_at: datetime
+      appointment:
+        fields:
+          - id: int
+          - patient_id: int
+          - date: date
+          - start_time: time
+          - end_time: time
+          - notes: str
+      session_note:
+        fields:
+          - id: int
+          - patient_id: int
+          - content: str
+          - created_at: datetime
+    endpoints:
+      auth:
+        - POST /auth/register
+        - POST /auth/login
+      patients:
+        - GET /patients
+        - POST /patients
+        - PUT /patients/{id}
+        - DELETE /patients/{id}
+      appointments:
+        - GET /appointments
+        - POST /appointments
+        - PUT /appointments/{id}
+        - DELETE /appointments/{id}
+      session_notes:
+        - GET /session_notes/{patient_id}
+        - POST /session_notes
+
+  frontend:
+    pages:
+      login:
+        path: /login
+      dashboard:
+        path: /dashboard
+      patients:
+        path: /patients
+      appointments:
+        path: /appointments
+      notes:
+        path: /notes/{patient_id}
+    ui_components:
+      - TailwindCSS
+      - shadcn/ui
+    features:
+      - jwt_storage_localstorage
+      - axios_requests
+      - form_validation
+      - datepicker: react-datepicker
+
+  dev_goals:
+    - docker_compose_up_one_command
+    - modular_code_structure: model-schema-router
+    - Polish_text_labels
+    - seed_data: 2 patients, 2 appointments, 1 user
+    - Swagger_docs: true
+    - CORS_enabled: true

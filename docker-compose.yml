@@ -1,0 +1,77 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: therapyassistance-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: therapyassistance
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - therapyassistance-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: therapyassistance-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/therapyassistance
+      JWT_SECRET: supersecret
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRATION_HOURS: 24
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - therapyassistance-network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        alembic upgrade head 2>/dev/null || echo 'Alembic migrations skipped' &&
+        python seed.py 2>/dev/null || echo 'Seeding skipped' &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: therapyassistance-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - therapyassistance-network
+    environment:
+      - VITE_API_URL=http://localhost:8000
+
+networks:
+  therapyassistance-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local
