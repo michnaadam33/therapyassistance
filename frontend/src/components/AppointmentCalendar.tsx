@@ -25,6 +25,8 @@ import {
   User,
   Plus,
   Trash2,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { Appointment, Patient } from "../types";
 import { appointmentsApi, patientsApi } from "../services/api";
@@ -203,9 +205,16 @@ const AppointmentCalendar: React.FC = () => {
                       e.stopPropagation();
                       handleEditAppointment(appointment);
                     }}
-                    className="text-xs p-1 bg-blue-100 text-blue-800 rounded truncate cursor-pointer hover:bg-blue-200"
-                    title={`${appointment.start_time} - ${appointment.patient?.name}`}
+                    className={`text-xs p-1 rounded truncate cursor-pointer hover:bg-blue-200 ${
+                      appointment.is_paid
+                        ? "bg-green-100 text-green-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}
+                    title={`${appointment.start_time} - ${appointment.patient?.name} ${appointment.is_paid ? "(Opłacona)" : "(Nieopłacona)"}`}
                   >
+                    {appointment.is_paid && (
+                      <CheckCircle size={10} className="inline mr-1" />
+                    )}
                     {appointment.start_time.slice(0, 5)} -{" "}
                     {appointment.patient?.name}
                   </div>
@@ -263,22 +272,41 @@ const AppointmentCalendar: React.FC = () => {
                   <div
                     key={appointment.id}
                     onClick={() => handleEditAppointment(appointment)}
-                    className="p-2 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer hover:bg-blue-100"
+                    className={`p-2 rounded-lg border cursor-pointer ${
+                      appointment.is_paid
+                        ? "bg-green-50 border-green-200 hover:bg-green-100"
+                        : "bg-blue-50 border-blue-200 hover:bg-blue-100"
+                    }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-sm font-semibold">
                         {appointment.start_time.slice(0, 5)} -{" "}
                         {appointment.end_time.slice(0, 5)}
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteAppointment(appointment.id);
-                        }}
-                        className="text-red-600 hover:text-red-800 p-1"
-                      >
-                        <Trash2 size={14} />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        {appointment.is_paid ? (
+                          <CheckCircle
+                            size={14}
+                            className="text-green-600"
+                            title="Opłacona"
+                          />
+                        ) : (
+                          <XCircle
+                            size={14}
+                            className="text-gray-400"
+                            title="Nieopłacona"
+                          />
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteAppointment(appointment.id);
+                          }}
+                          className="text-red-600 hover:text-red-800 p-1"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </div>
                     <div className="text-sm text-gray-700 mt-1">
                       <User size={12} className="inline mr-1" />
@@ -287,6 +315,11 @@ const AppointmentCalendar: React.FC = () => {
                     {appointment.notes && (
                       <div className="text-xs text-gray-600 mt-1 truncate">
                         {appointment.notes}
+                      </div>
+                    )}
+                    {appointment.is_paid && (
+                      <div className="text-xs text-green-600 mt-1 font-medium">
+                        ✓ Opłacona
                       </div>
                     )}
                   </div>

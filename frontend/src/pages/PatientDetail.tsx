@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   ArrowLeft,
   Edit,
@@ -11,11 +11,19 @@ import {
   FileText,
   ClipboardList,
   Clock,
+  CreditCard,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { patientsApi, appointmentsApi, sessionNotesApi } from "@/services/api";
-import { Patient, Appointment, SessionNote } from "@/types";
+import {
+  patientsApi,
+  appointmentsApi,
+  sessionNotesApi,
+  paymentsApi,
+} from "@/services/api";
+import { Patient, Appointment, SessionNote, PaymentWithPatient } from "@/types";
 import { formatDate, formatTime, getInitials } from "@/lib/utils";
 import { toast } from "react-toastify";
 
@@ -25,6 +33,7 @@ const PatientDetail: React.FC = () => {
   const [patient, setPatient] = useState<Patient | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [sessionNotes, setSessionNotes] = useState<SessionNote[]>([]);
+  const [payments, setPayments] = useState<PaymentWithPatient[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState(false);
 
@@ -37,11 +46,13 @@ const PatientDetail: React.FC = () => {
   const fetchPatientData = async (patientId: number) => {
     try {
       setLoading(true);
-      const [patientData, appointmentsData, notesData] = await Promise.all([
-        patientsApi.getById(patientId),
-        appointmentsApi.getAll(),
-        sessionNotesApi.getByPatient(patientId),
-      ]);
+      const [patientData, appointmentsData, notesData, paymentsData] =
+        await Promise.all([
+          patientsApi.getById(patientId),
+          appointmentsApi.getAll(),
+          sessionNotesApi.getByPatient(patientId),
+          paymentsApi.getAll({ patient_id: patientId }),
+        ]);
 
       setPatient(patientData);
       // Filter appointments for this patient
@@ -61,6 +72,7 @@ const PatientDetail: React.FC = () => {
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
         ),
       );
+      setPayments(paymentsData.payments);
     } catch (error) {
       console.error("Error fetching patient data:", error);
       toast.error("Błąd podczas pobierania danych pacjenta");
@@ -112,6 +124,25 @@ const PatientDetail: React.FC = () => {
         return aptDate < now;
       })
       .slice(0, 3);
+  };
+
+  const getTotalPayments = () => {
+    return payments.reduce((sum, payment) => sum + payment.amount, 0);
+  };
+
+  const getPaidAppointments = () => {
+    return appointments.filter((apt) => apt.is_paid).length;
+  };
+
+  const getUnpaidAppointments = () => {
+    return appointments.filter((apt) => !apt.is_paid).length;
+  };
+
+  const formatAmount = (amount: number) => {
+    return new Intl.NumberFormat("pl-PL", {
+      style: "currency",
+      currency: "PLN",
+    }).format(amount);
   };
 
   if (loading) {
@@ -197,6 +228,48 @@ const PatientDetail: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center">
+                <CreditCard className="h-8 w-8 text-green-500 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Łączne płatności</p>
+                  <p className="text-xl font-semibold">
+                    {formatAmount(getTotalPayments())}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {payments.length} płatności
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center">
+                <CheckCircle className="h-8 w-8 text-green-500 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Opłacone wizyty</p>
+                  <p className="text-xl font-semibold">
+                    {getPaidAppointments()}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    z {appointments.length} wizyt
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="flex items-center">
+                <XCircle className="h-8 w-8 text-red-500 mr-3" />
+                <div>
+                  <p className="text-sm text-gray-500">Nieopłacone wizyty</p>
+                  <p className="text-xl font-semibold">
+                    {getUnpaidAppointments()}
+                  </p>
+                  <p className="text-xs text-gray-400">do opłacenia</p>
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="flex items-start space-x-4">
             <div className="flex-shrink-0">
               <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -379,6 +452,81 @@ const PatientDetail: React.FC = () => {
         </Card>
       </div>
 
+      {/* Recent Payments */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span className="flex items-center">
+              <CreditCard className="h-5 w-5 mr-2" />
+              Ostatnie płatności
+            </span>
+            <Link to="/payments/new">
+              <Button size="sm" variant="outline">
+                Dodaj płatność
+              </Button>
+            </Link>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {payments.length > 0 ? (
+            <div className="space-y-3">
+              {payments.slice(0, 5).map((payment) => (
+                <div
+                  key={payment.id}
+                  className="p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
+                  onClick={() => navigate(`/payments/${payment.id}`)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="font-medium text-green-600">
+                        {formatAmount(payment.amount)}
+                      </p>
+                      <p className="text-sm text-gray-600 flex items-center mt-1">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {formatDate(payment.payment_date)}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                          {payment.payment_method === "CASH"
+                            ? "Gotówka"
+                            : "Przelew"}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {payment.appointments.length}{" "}
+                          {payment.appointments.length === 1
+                            ? "wizyta"
+                            : "wizyt"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {payment.description && (
+                    <p className="text-sm text-gray-600 mt-2 line-clamp-1">
+                      {payment.description}
+                    </p>
+                  )}
+                </div>
+              ))}
+              {payments.length > 5 && (
+                <Button
+                  variant="link"
+                  className="w-full"
+                  onClick={() =>
+                    navigate(`/payments?patient_id=${patient?.id}`)
+                  }
+                >
+                  Zobacz wszystkie płatności ({payments.length})
+                </Button>
+              )}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 py-4">
+              Brak zarejestrowanych płatności
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Past Appointments */}
       {getPastAppointments().length > 0 && (
         <Card>
@@ -397,7 +545,7 @@ const PatientDetail: React.FC = () => {
                   onClick={() => navigate(`/appointments/${appointment.id}`)}
                 >
                   <div className="flex items-center justify-between">
-                    <div>
+                    <div className="flex-1">
                       <p className="font-medium">
                         {formatDate(appointment.date)}
                       </p>
@@ -406,6 +554,19 @@ const PatientDetail: React.FC = () => {
                         {formatTime(appointment.start_time)} -{" "}
                         {formatTime(appointment.end_time)}
                       </p>
+                      <div className="mt-2">
+                        {appointment.is_paid ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            <CheckCircle className="h-3 w-3 mr-1" />
+                            Opłacona
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                            <XCircle className="h-3 w-3 mr-1" />
+                            Nieopłacona
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   {appointment.notes && (

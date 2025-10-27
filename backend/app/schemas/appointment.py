@@ -9,6 +9,7 @@ class AppointmentBase(BaseModel):
     start_time: time
     end_time: time
     notes: Optional[str] = None
+    is_paid: bool = False
 
 
 class AppointmentCreate(AppointmentBase):
@@ -21,6 +22,7 @@ class AppointmentUpdate(BaseModel):
     start_time: Optional[time] = None
     end_time: Optional[time] = None
     notes: Optional[str] = None
+    is_paid: Optional[bool] = None
 
 
 class Appointment(AppointmentBase):

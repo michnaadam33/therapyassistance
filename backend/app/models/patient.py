@@ -21,3 +21,6 @@ class Patient(Base):
     session_notes = relationship(
         "SessionNote", back_populates="patient", cascade="all, delete-orphan"
     )
+    payments = relationship(
+        "Payment", back_populates="patient", cascade="all, delete-orphan"
+    )

@@ -1,5 +1,5 @@
-import axios, { AxiosError } from 'axios';
-import { toast } from 'react-toastify';
+import axios, { AxiosError } from "axios";
+import { toast } from "react-toastify";
 import {
   AuthResponse,
   LoginData,
@@ -12,21 +12,26 @@ import {
   SessionNote,
   SessionNoteFormData,
   ApiError,
-} from '../types';
+  Payment,
+  PaymentFormData,
+  PaymentListResponse,
+  PaymentWithPatient,
+  PaymentStatistics,
+} from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const api = axios.create({
   baseURL: API_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('access_token');
+    const token = localStorage.getItem("access_token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -34,7 +39,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor for error handling
@@ -43,34 +48,34 @@ api.interceptors.response.use(
   (error: AxiosError<ApiError>) => {
     if (error.response?.status === 401) {
       // Token expired or invalid
-      localStorage.removeItem('access_token');
-      window.location.href = '/login';
-      toast.error('Sesja wygasła. Zaloguj się ponownie.');
+      localStorage.removeItem("access_token");
+      window.location.href = "/login";
+      toast.error("Sesja wygasła. Zaloguj się ponownie.");
     } else if (error.response?.data?.detail) {
       toast.error(error.response.data.detail);
     } else {
-      toast.error('Wystąpił błąd. Spróbuj ponownie.');
+      toast.error("Wystąpił błąd. Spróbuj ponownie.");
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 // Auth endpoints
 export const authApi = {
   login: async (data: LoginData): Promise<AuthResponse> => {
     const formData = new FormData();
-    formData.append('username', data.username);
-    formData.append('password', data.password);
-    const response = await api.post<AuthResponse>('/auth/login', formData, {
+    formData.append("username", data.username);
+    formData.append("password", data.password);
+    const response = await api.post<AuthResponse>("/auth/login", formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
     return response.data;
   },
 
   register: async (data: RegisterData): Promise<User> => {
-    const response = await api.post<User>('/auth/register', data);
+    const response = await api.post<User>("/auth/register", data);
     return response.data;
   },
 };
@@ -78,7 +83,7 @@ export const authApi = {
 // Patients endpoints
 export const patientsApi = {
   getAll: async (): Promise<Patient[]> => {
-    const response = await api.get<Patient[]>('/patients');
+    const response = await api.get<Patient[]>("/patients");
     return response.data;
   },
 
@@ -88,11 +93,14 @@ export const patientsApi = {
   },
 
   create: async (data: PatientFormData): Promise<Patient> => {
-    const response = await api.post<Patient>('/patients', data);
+    const response = await api.post<Patient>("/patients", data);
     return response.data;
   },
 
-  update: async (id: number, data: Partial<PatientFormData>): Promise<Patient> => {
+  update: async (
+    id: number,
+    data: Partial<PatientFormData>,
+  ): Promise<Patient> => {
     const response = await api.put<Patient>(`/patients/${id}`, data);
     return response.data;
   },
@@ -105,7 +113,7 @@ export const patientsApi = {
 // Appointments endpoints
 export const appointmentsApi = {
   getAll: async (): Promise<Appointment[]> => {
-    const response = await api.get<Appointment[]>('/appointments');
+    const response = await api.get<Appointment[]>("/appointments");
     return response.data;
   },
 
@@ -115,11 +123,14 @@ export const appointmentsApi = {
   },
 
   create: async (data: AppointmentFormData): Promise<Appointment> => {
-    const response = await api.post<Appointment>('/appointments', data);
+    const response = await api.post<Appointment>("/appointments", data);
     return response.data;
   },
 
-  update: async (id: number, data: Partial<AppointmentFormData>): Promise<Appointment> => {
+  update: async (
+    id: number,
+    data: Partial<AppointmentFormData>,
+  ): Promise<Appointment> => {
     const response = await api.put<Appointment>(`/appointments/${id}`, data);
     return response.data;
   },
@@ -132,17 +143,79 @@ export const appointmentsApi = {
 // Session notes endpoints
 export const sessionNotesApi = {
   getByPatient: async (patientId: number): Promise<SessionNote[]> => {
-    const response = await api.get<SessionNote[]>(`/session_notes/${patientId}`);
+    const response = await api.get<SessionNote[]>(
+      `/session_notes/${patientId}`,
+    );
     return response.data;
   },
 
   create: async (data: SessionNoteFormData): Promise<SessionNote> => {
-    const response = await api.post<SessionNote>('/session_notes', data);
+    const response = await api.post<SessionNote>("/session_notes", data);
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
     await api.delete(`/session_notes/${id}`);
+  },
+};
+
+// Payments endpoints
+export const paymentsApi = {
+  getAll: async (params?: {
+    skip?: number;
+    limit?: number;
+    patient_id?: number;
+    date_from?: string;
+    date_to?: string;
+    payment_method?: "CASH" | "TRANSFER";
+  }): Promise<PaymentListResponse> => {
+    const response = await api.get<PaymentListResponse>("/payments/", {
+      params,
+    });
+    return response.data;
+  },
+
+  getById: async (id: number): Promise<PaymentWithPatient> => {
+    const response = await api.get<PaymentWithPatient>(`/payments/${id}`);
+    return response.data;
+  },
+
+  create: async (data: PaymentFormData): Promise<Payment> => {
+    const response = await api.post<Payment>("/payments/", data);
+    toast.success("Płatność została zarejestrowana");
+    return response.data;
+  },
+
+  update: async (
+    id: number,
+    data: Partial<PaymentFormData>,
+  ): Promise<Payment> => {
+    const response = await api.patch<Payment>(`/payments/${id}`, data);
+    toast.success("Płatność została zaktualizowana");
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await api.delete(`/payments/${id}`);
+    toast.success("Płatność została usunięta");
+  },
+
+  getUnpaidAppointments: async (patientId: number): Promise<number[]> => {
+    const response = await api.get<number[]>(
+      `/payments/patient/${patientId}/unpaid-appointments`,
+    );
+    return response.data;
+  },
+
+  getStatistics: async (params?: {
+    date_from?: string;
+    date_to?: string;
+  }): Promise<PaymentStatistics> => {
+    const response = await api.get<PaymentStatistics>(
+      "/payments/statistics/summary",
+      { params },
+    );
+    return response.data;
   },
 };
 

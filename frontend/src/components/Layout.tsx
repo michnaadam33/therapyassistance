@@ -9,6 +9,7 @@ import {
   Menu,
   X,
   User,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,6 +36,11 @@ const navItems: NavItem[] = [
     title: "Wizyty",
     href: "/appointments",
     icon: Calendar,
+  },
+  {
+    title: "Płatności",
+    href: "/payments",
+    icon: CreditCard,
   },
 ];
 

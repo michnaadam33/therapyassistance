@@ -1,4 +1,5 @@
 from datetime import datetime, date, time, timedelta
+from decimal import Decimal
 from sqlalchemy.orm import Session
 from app.core.database import SessionLocal, engine, Base
 from app.core.security import get_password_hash
@@ -6,6 +7,7 @@ from app.models.user import User
 from app.models.patient import Patient
 from app.models.appointment import Appointment
 from app.models.session_note import SessionNote
+from app.models.payment import Payment, PaymentMethod
 
 
 def seed_database():
@@ -19,6 +21,7 @@ def seed_database():
 
     try:
         # Clear existing data (optional - comment out if you want to keep existing data)
+        db.query(Payment).delete()
         db.query(SessionNote).delete()
         db.query(Appointment).delete()
         db.query(Patient).delete()
@@ -61,36 +64,76 @@ def seed_database():
         # Create appointments
         tomorrow = date.today() + timedelta(days=1)
         next_week = date.today() + timedelta(days=7)
+        last_week = date.today() - timedelta(days=7)
+        two_weeks_ago = date.today() - timedelta(days=14)
 
+        # Past appointments (for payment history)
         appointment1 = Appointment(
+            patient_id=patient1.id,
+            date=two_weeks_ago,
+            start_time=time(10, 0),
+            end_time=time(11, 0),
+            notes="Sesja #3 - omówienie strategii",
+            is_paid=True,
+        )
+
+        appointment2 = Appointment(
+            patient_id=patient1.id,
+            date=last_week,
+            start_time=time(10, 0),
+            end_time=time(11, 0),
+            notes="Sesja #4 - kontynuacja terapii",
+            is_paid=True,
+        )
+
+        appointment3 = Appointment(
+            patient_id=patient2.id,
+            date=last_week,
+            start_time=time(14, 0),
+            end_time=time(15, 0),
+            notes="Sesja #2 - CBT",
+            is_paid=False,
+        )
+
+        # Future appointments
+        appointment4 = Appointment(
             patient_id=patient1.id,
             date=tomorrow,
             start_time=time(10, 0),
             end_time=time(11, 0),
             notes="Sesja cotygodniowa - omówienie postępów",
+            is_paid=False,
         )
 
-        appointment2 = Appointment(
+        appointment5 = Appointment(
             patient_id=patient2.id,
             date=tomorrow,
             start_time=time(14, 0),
             end_time=time(15, 0),
             notes="Kontynuacja terapii CBT",
+            is_paid=False,
         )
 
-        appointment3 = Appointment(
+        appointment6 = Appointment(
             patient_id=patient1.id,
             date=next_week,
             start_time=time(10, 0),
             end_time=time(11, 0),
             notes="Kolejna sesja cotygodniowa",
+            is_paid=False,
         )
 
         db.add(appointment1)
         db.add(appointment2)
         db.add(appointment3)
+        db.add(appointment4)
+        db.add(appointment5)
+        db.add(appointment6)
         db.commit()
-        print("✅ Utworzono 3 wizyty")
+        db.refresh(appointment1)
+        db.refresh(appointment2)
+        db.refresh(appointment3)
+        print("✅ Utworzono 6 wizyt (2 opłacone, 4 nieopłacone)")
 
         # Create session notes
         note1 = SessionNote(
@@ -150,10 +193,37 @@ def seed_database():
         db.commit()
         print("✅ Utworzono 3 notatki z sesji")
 
+        # Create payments
+        payment1 = Payment(
+            patient_id=patient1.id,
+            amount=Decimal("400.00"),
+            payment_date=datetime.combine(two_weeks_ago, time(11, 30)),
+            payment_method=PaymentMethod.CASH,
+            description="Płatność za 2 wizyty - gotówka",
+        )
+        payment1.appointments = [appointment1, appointment2]
+
+        payment2 = Payment(
+            patient_id=patient2.id,
+            amount=Decimal("200.00"),
+            payment_date=datetime.combine(last_week, time(15, 15)),
+            payment_method=PaymentMethod.TRANSFER,
+            description="Płatność za wizytę - przelew bankowy",
+        )
+        # Uwaga: appointment3 został utworzony jako nieopłacony dla demonstracji
+
+        db.add(payment1)
+        db.add(payment2)
+        db.commit()
+        print("✅ Utworzono 2 płatności")
+
         print("\n🎉 Baza danych została wypełniona przykładowymi danymi!")
         print("\n📝 Dane logowania:")
         print("   Email: terapeuta@example.com")
         print("   Hasło: haslo123")
+        print("\n💰 Płatności:")
+        print(f"   - Jan Kowalski: 400 PLN (2 wizyty opłacone, 2 nieopłacone)")
+        print(f"   - Anna Nowak: 0 PLN (1 wizyta nieopłacona)")
 
     except Exception as e:
         print(f"❌ Błąd podczas wypełniania bazy danych: {e}")

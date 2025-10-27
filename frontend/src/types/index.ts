@@ -42,6 +42,7 @@ export interface Appointment {
   start_time: string;
   end_time: string;
   notes?: string;
+  is_paid: boolean;
   created_at: string;
 }
 
@@ -51,6 +52,7 @@ export interface AppointmentFormData {
   start_time: string;
   end_time: string;
   notes?: string;
+  is_paid?: boolean;
 }
 
 export interface SessionNote {
@@ -67,4 +69,56 @@ export interface SessionNoteFormData {
 
 export interface ApiError {
   detail: string;
+}
+
+export type PaymentMethod = "CASH" | "TRANSFER";
+
+export interface Payment {
+  id: number;
+  patient_id: number;
+  amount: number;
+  payment_date: string;
+  payment_method: PaymentMethod;
+  description?: string;
+  created_at: string;
+  updated_at?: string;
+  appointments: AppointmentInPayment[];
+}
+
+export interface AppointmentInPayment {
+  id: number;
+  patient_id: number;
+  date: string;
+  start_time: string;
+  end_time: string;
+  is_paid: boolean;
+}
+
+export interface PaymentWithPatient extends Payment {
+  patient_name: string;
+  patient_email?: string;
+  patient_phone?: string;
+}
+
+export interface PaymentFormData {
+  patient_id: number;
+  amount: number;
+  payment_method: PaymentMethod;
+  appointment_ids: number[];
+  payment_date?: string;
+  description?: string;
+}
+
+export interface PaymentListResponse {
+  total: number;
+  payments: PaymentWithPatient[];
+}
+
+export interface PaymentStatistics {
+  total_payments: number;
+  total_amount: number;
+  cash_amount: number;
+  transfer_amount: number;
+  cash_count: number;
+  transfer_count: number;
 }

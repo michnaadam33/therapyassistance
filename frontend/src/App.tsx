@@ -1,16 +1,19 @@
-import React from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import Layout from '@/components/Layout';
-import Login from '@/pages/Login';
-import Dashboard from '@/pages/Dashboard';
-import Patients from '@/pages/Patients';
-import PatientForm from '@/pages/PatientForm';
-import PatientDetail from '@/pages/PatientDetail';
-import Appointments from '@/pages/Appointments';
-import AppointmentForm from '@/pages/AppointmentForm';
-import Notes from '@/pages/Notes';
-import Register from '@/pages/Register';
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import Layout from "@/components/Layout";
+import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
+import Patients from "@/pages/Patients";
+import PatientForm from "@/pages/PatientForm";
+import PatientDetail from "@/pages/PatientDetail";
+import Appointments from "@/pages/Appointments";
+import AppointmentForm from "@/pages/AppointmentForm";
+import Notes from "@/pages/Notes";
+import Register from "@/pages/Register";
+import Payments from "@/pages/Payments";
+import PaymentForm from "@/pages/PaymentForm";
+import PaymentDetail from "@/pages/PaymentDetail";
 
 interface ProtectedRouteProps {
   children: React.ReactElement;
@@ -68,6 +71,12 @@ function App() {
         {/* Notes routes */}
         <Route path="notes" element={<Notes />} />
         <Route path="notes/:patientId" element={<Notes />} />
+
+        {/* Payments routes */}
+        <Route path="payments" element={<Payments />} />
+        <Route path="payments/new" element={<PaymentForm />} />
+        <Route path="payments/:id" element={<PaymentDetail />} />
+        <Route path="payments/:id/edit" element={<PaymentForm />} />
       </Route>
 
       {/* Catch all - redirect to dashboard */}
