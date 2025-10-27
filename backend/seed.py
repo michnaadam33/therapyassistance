@@ -7,7 +7,7 @@ from app.models.user import User
 from app.models.patient import Patient
 from app.models.appointment import Appointment
 from app.models.session_note import SessionNote
-from app.models.payment import Payment, PaymentMethod
+from app.models.payment import Payment, PaymentMethod, payment_appointments
 
 
 def seed_database():
@@ -21,6 +21,7 @@ def seed_database():
 
     try:
         # Clear existing data (optional - comment out if you want to keep existing data)
+        db.execute(payment_appointments.delete())
         db.query(Payment).delete()
         db.query(SessionNote).delete()
         db.query(Appointment).delete()

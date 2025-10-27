@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from datetime import datetime
+from datetime import datetime, date, time
 from typing import Optional, List
 from decimal import Decimal
 from enum import Enum
@@ -13,9 +13,9 @@ class PaymentMethodEnum(str, Enum):
 class AppointmentInPayment(BaseModel):
     id: int
     patient_id: int
-    date: datetime
-    start_time: datetime
-    end_time: datetime
+    date: date
+    start_time: time
+    end_time: time
     is_paid: bool
 
     class Config:
@@ -24,7 +24,7 @@ class AppointmentInPayment(BaseModel):
 
 class PaymentBase(BaseModel):
     patient_id: int
-    amount: Decimal = Field(..., ge=0, decimal_places=2)
+    amount: Decimal = Field(..., ge=0)
     payment_method: PaymentMethodEnum
     description: Optional[str] = None
 
@@ -35,7 +35,7 @@ class PaymentCreate(PaymentBase):
 
 
 class PaymentUpdate(BaseModel):
-    amount: Optional[Decimal] = Field(None, ge=0, decimal_places=2)
+    amount: Optional[Decimal] = Field(None, ge=0)
     payment_method: Optional[PaymentMethodEnum] = None
     description: Optional[str] = None
     payment_date: Optional[datetime] = None

@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { format } from 'date-fns';
-import { pl } from 'date-fns/locale';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { format } from "date-fns";
+import { pl } from "date-fns/locale";
+import { toast } from "react-toastify";
 import {
-  PlusIcon,
-  CurrencyDollarIcon,
-  CalendarIcon,
-  UserIcon,
-  CreditCardIcon,
-  CashIcon,
-  TrashIcon,
-  EyeIcon,
-} from '@heroicons/react/24/outline';
-import { paymentsApi, patientsApi } from '../services/api';
-import { PaymentWithPatient, Patient, PaymentStatistics } from '../types';
-import LoadingSpinner from '../components/LoadingSpinner';
+  Plus,
+  DollarSign,
+  Calendar,
+  User,
+  CreditCard,
+  Banknote,
+  Trash2,
+  Eye,
+} from "lucide-react";
+import { paymentsApi, patientsApi } from "../services/api";
+import { PaymentWithPatient, Patient, PaymentStatistics } from "../types";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const Payments: React.FC = () => {
   const [payments, setPayments] = useState<PaymentWithPatient[]>([]);
@@ -23,10 +23,10 @@ const Payments: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [statistics, setStatistics] = useState<PaymentStatistics | null>(null);
   const [filters, setFilters] = useState({
-    patient_id: '',
-    date_from: '',
-    date_to: '',
-    payment_method: '',
+    patient_id: "",
+    date_from: "",
+    date_to: "",
+    payment_method: "",
   });
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -76,16 +76,18 @@ const Payments: React.FC = () => {
       setPatients(patientsData);
       setStatistics(statsData);
     } catch (error) {
-      console.error('Error fetching payments:', error);
-      toast.error('Błąd podczas pobierania płatności');
+      console.error("Error fetching payments:", error);
+      toast.error("Błąd podczas pobierania płatności");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
+    setFilters((prev) => ({ ...prev, [name]: value }));
     setCurrentPage(0); // Reset do pierwszej strony przy zmianie filtrów
   };
 
@@ -98,27 +100,27 @@ const Payments: React.FC = () => {
       setPaymentToDelete(null);
       fetchData();
     } catch (error) {
-      console.error('Error deleting payment:', error);
+      console.error("Error deleting payment:", error);
     }
   };
 
   const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat('pl-PL', {
-      style: 'currency',
-      currency: 'PLN',
+    return new Intl.NumberFormat("pl-PL", {
+      style: "currency",
+      currency: "PLN",
     }).format(amount);
   };
 
   const getPaymentMethodIcon = (method: string) => {
-    return method === 'CASH' ? (
-      <CashIcon className="h-4 w-4 inline mr-1" />
+    return method === "CASH" ? (
+      <Banknote className="h-4 w-4 inline mr-1" />
     ) : (
-      <CreditCardIcon className="h-4 w-4 inline mr-1" />
+      <CreditCard className="h-4 w-4 inline mr-1" />
     );
   };
 
   const getPaymentMethodLabel = (method: string) => {
-    return method === 'CASH' ? 'Gotówka' : 'Przelew';
+    return method === "CASH" ? "Gotówka" : "Przelew";
   };
 
   const totalPages = Math.ceil(totalCount / itemsPerPage);
@@ -135,7 +137,7 @@ const Payments: React.FC = () => {
             to="/payments/new"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700"
           >
-            <PlusIcon className="h-5 w-5 mr-2" />
+            <Plus className="h-5 w-5 mr-2" />
             Dodaj płatność
           </Link>
         </div>
@@ -145,31 +147,43 @@ const Payments: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center">
-                <CurrencyDollarIcon className="h-8 w-8 text-green-500 mr-3" />
+                <DollarSign className="h-8 w-8 text-green-500 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Łączna kwota</p>
-                  <p className="text-xl font-semibold">{formatAmount(statistics.total_amount)}</p>
-                  <p className="text-xs text-gray-400">{statistics.total_payments} płatności</p>
+                  <p className="text-xl font-semibold">
+                    {formatAmount(statistics.total_amount)}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {statistics.total_payments} płatności
+                  </p>
                 </div>
               </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center">
-                <CashIcon className="h-8 w-8 text-blue-500 mr-3" />
+                <Banknote className="h-8 w-8 text-blue-500 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Gotówka</p>
-                  <p className="text-xl font-semibold">{formatAmount(statistics.cash_amount)}</p>
-                  <p className="text-xs text-gray-400">{statistics.cash_count} płatności</p>
+                  <p className="text-xl font-semibold">
+                    {formatAmount(statistics.cash_amount)}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {statistics.cash_count} płatności
+                  </p>
                 </div>
               </div>
             </div>
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center">
-                <CreditCardIcon className="h-8 w-8 text-purple-500 mr-3" />
+                <CreditCard className="h-8 w-8 text-purple-500 mr-3" />
                 <div>
                   <p className="text-sm text-gray-500">Przelewy</p>
-                  <p className="text-xl font-semibold">{formatAmount(statistics.transfer_amount)}</p>
-                  <p className="text-xs text-gray-400">{statistics.transfer_count} płatności</p>
+                  <p className="text-xl font-semibold">
+                    {formatAmount(statistics.transfer_amount)}
+                  </p>
+                  <p className="text-xs text-gray-400">
+                    {statistics.transfer_count} płatności
+                  </p>
                 </div>
               </div>
             </div>
@@ -182,7 +196,10 @@ const Payments: React.FC = () => {
         <h2 className="text-lg font-medium mb-4">Filtry</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label htmlFor="patient_id" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="patient_id"
+              className="block text-sm font-medium text-gray-700"
+            >
               Pacjent
             </label>
             <select
@@ -193,7 +210,7 @@ const Payments: React.FC = () => {
               className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
             >
               <option value="">Wszyscy pacjenci</option>
-              {patients.map(patient => (
+              {patients.map((patient) => (
                 <option key={patient.id} value={patient.id}>
                   {patient.name}
                 </option>
@@ -201,7 +218,10 @@ const Payments: React.FC = () => {
             </select>
           </div>
           <div>
-            <label htmlFor="date_from" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="date_from"
+              className="block text-sm font-medium text-gray-700"
+            >
               Data od
             </label>
             <input
@@ -214,7 +234,10 @@ const Payments: React.FC = () => {
             />
           </div>
           <div>
-            <label htmlFor="date_to" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="date_to"
+              className="block text-sm font-medium text-gray-700"
+            >
               Data do
             </label>
             <input
@@ -227,7 +250,10 @@ const Payments: React.FC = () => {
             />
           </div>
           <div>
-            <label htmlFor="payment_method" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="payment_method"
+              className="block text-sm font-medium text-gray-700"
+            >
               Metoda płatności
             </label>
             <select
@@ -278,17 +304,25 @@ const Payments: React.FC = () => {
               <tr key={payment.id}>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <div className="flex items-center">
-                    <CalendarIcon className="h-4 w-4 mr-2 text-gray-400" />
-                    {format(new Date(payment.payment_date), 'dd.MM.yyyy HH:mm', { locale: pl })}
+                    <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                    {format(
+                      new Date(payment.payment_date),
+                      "dd.MM.yyyy HH:mm",
+                      { locale: pl },
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    <UserIcon className="h-4 w-4 mr-2 text-gray-400" />
+                    <User className="h-4 w-4 mr-2 text-gray-400" />
                     <div>
-                      <div className="text-sm font-medium text-gray-900">{payment.patient_name}</div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {payment.patient_name}
+                      </div>
                       {payment.patient_email && (
-                        <div className="text-xs text-gray-500">{payment.patient_email}</div>
+                        <div className="text-xs text-gray-500">
+                          {payment.patient_email}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -306,12 +340,15 @@ const Payments: React.FC = () => {
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
-                    {payment.appointments.length} {payment.appointments.length === 1 ? 'wizyta' : 'wizyt'}
+                    {payment.appointments.length}{" "}
+                    {payment.appointments.length === 1 ? "wizyta" : "wizyt"}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-sm text-gray-500">
                   {payment.description ? (
-                    <span className="truncate max-w-xs inline-block">{payment.description}</span>
+                    <span className="truncate max-w-xs inline-block">
+                      {payment.description}
+                    </span>
                   ) : (
                     <span className="text-gray-400">—</span>
                   )}
@@ -322,7 +359,7 @@ const Payments: React.FC = () => {
                       to={`/payments/${payment.id}`}
                       className="text-indigo-600 hover:text-indigo-900"
                     >
-                      <EyeIcon className="h-5 w-5" />
+                      <Eye className="h-5 w-5" />
                     </Link>
                     <button
                       onClick={() => {
@@ -331,7 +368,7 @@ const Payments: React.FC = () => {
                       }}
                       className="text-red-600 hover:text-red-900"
                     >
-                      <TrashIcon className="h-5 w-5" />
+                      <Trash2 className="h-5 w-5" />
                     </button>
                   </div>
                 </td>
@@ -345,14 +382,16 @@ const Payments: React.FC = () => {
           <div className="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
             <div className="flex-1 flex justify-between sm:hidden">
               <button
-                onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                onClick={() => setCurrentPage((prev) => Math.max(0, prev - 1))}
                 disabled={currentPage === 0}
                 className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
                 Poprzednia
               </button>
               <button
-                onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages - 1, prev + 1))
+                }
                 disabled={currentPage === totalPages - 1}
                 className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
@@ -362,25 +401,37 @@ const Payments: React.FC = () => {
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm text-gray-700">
-                  Wyświetlanie{' '}
-                  <span className="font-medium">{currentPage * itemsPerPage + 1}</span> do{' '}
+                  Wyświetlanie{" "}
+                  <span className="font-medium">
+                    {currentPage * itemsPerPage + 1}
+                  </span>{" "}
+                  do{" "}
                   <span className="font-medium">
                     {Math.min((currentPage + 1) * itemsPerPage, totalCount)}
-                  </span>{' '}
+                  </span>{" "}
                   z <span className="font-medium">{totalCount}</span> wyników
                 </p>
               </div>
               <div>
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <nav
+                  className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px"
+                  aria-label="Pagination"
+                >
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(0, prev - 1))
+                    }
                     disabled={currentPage === 0}
                     className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                   >
                     Poprzednia
                   </button>
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) =>
+                        Math.min(totalPages - 1, prev + 1),
+                      )
+                    }
                     disabled={currentPage === totalPages - 1}
                     className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
                   >
@@ -402,7 +453,7 @@ const Payments: React.FC = () => {
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
-                    <TrashIcon className="h-6 w-6 text-red-600" />
+                    <Trash2 className="h-6 w-6 text-red-600" />
                   </div>
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                     <h3 className="text-lg leading-6 font-medium text-gray-900">
@@ -410,7 +461,8 @@ const Payments: React.FC = () => {
                     </h3>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        Czy na pewno chcesz usunąć tę płatność? Powiązane wizyty zostaną oznaczone jako nieopłacone.
+                        Czy na pewno chcesz usunąć tę płatność? Powiązane wizyty
+                        zostaną oznaczone jako nieopłacone.
                       </p>
                     </div>
                   </div>
