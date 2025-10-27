@@ -88,10 +88,10 @@ def get_payments(
     current_user: User = Depends(get_current_active_user),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, ge=1, le=500),
-    patient_id: Optional[int] = None,
-    date_from: Optional[date] = None,
-    date_to: Optional[date] = None,
-    payment_method: Optional[PaymentMethod] = None,
+    patient_id: Optional[int] = Query(None),
+    date_from: Optional[date] = Query(None),
+    date_to: Optional[date] = Query(None),
+    payment_method: Optional[PaymentMethod] = Query(None),
 ):
     """
     Pobierz listę płatności z możliwością filtrowania
@@ -285,8 +285,8 @@ def get_unpaid_appointments(
 def get_payment_statistics(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
-    date_from: Optional[date] = None,
-    date_to: Optional[date] = None,
+    date_from: Optional[date] = Query(None),
+    date_to: Optional[date] = Query(None),
 ):
     """
     Pobierz statystyki płatności

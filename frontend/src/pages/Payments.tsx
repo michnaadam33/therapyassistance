@@ -62,13 +62,18 @@ const Payments: React.FC = () => {
         paymentsParams.payment_method = filters.payment_method;
       }
 
+      const statsParams: any = {};
+      if (filters.date_from) {
+        statsParams.date_from = filters.date_from;
+      }
+      if (filters.date_to) {
+        statsParams.date_to = filters.date_to;
+      }
+
       const [paymentsData, patientsData, statsData] = await Promise.all([
         paymentsApi.getAll(paymentsParams),
         patientsApi.getAll(),
-        paymentsApi.getStatistics({
-          date_from: filters.date_from,
-          date_to: filters.date_to,
-        }),
+        paymentsApi.getStatistics(statsParams),
       ]);
 
       setPayments(paymentsData.payments);

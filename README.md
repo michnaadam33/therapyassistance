@@ -2,6 +2,8 @@
 
 Pełna aplikacja webowa (backend + frontend) dla psychoterapeutów.
 
+**Wersja:** 1.0.2 | **Status:** Production Ready ✅
+
 ## 📋 Opis projektu
 
 Aplikacja **TherapyAssistance** umożliwia psychoterapeutom kompleksowe zarządzanie:
@@ -24,7 +26,11 @@ therapyassistance/
 
 ### Uruchomienie całej aplikacji:
 ```bash
+# 1. Uruchom kontenery
 docker compose up
+
+# 2. W nowym terminalu - wypełnij bazę danymi testowymi
+docker compose exec backend python seed.py
 ```
 
 Aplikacja będzie dostępna:
@@ -32,6 +38,10 @@ Aplikacja będzie dostępna:
 - Backend API: http://localhost:8000
 - Swagger docs: http://localhost:8000/docs
 - Database: localhost:5432
+
+**Dane logowania:**
+- Email: `terapeuta@example.com`
+- Hasło: `haslo123`
 
 ---
 
@@ -240,12 +250,14 @@ frontend/
 - [x] Zarządzanie pacjentami (CRUD)
 - [x] Kalendarz wizyt (CRUD)
 - [x] Notatki terapeutyczne
-- [x] System płatności
+- [x] System płatności ⭐ **NOWY**
 - [x] Historia płatności pacjentów
 - [x] Statystyki finansowe
+- [x] Wskaźniki płatności w kalendarzu
 - [x] Responsywny design
 - [x] Docker compose setup
 - [x] Dokumentacja API (Swagger)
+- [x] Wszystkie bug fixy v1.0.2 ✅
 
 ---
 
@@ -315,6 +327,18 @@ http://localhost:8000/redoc
 
 ---
 
+## 🐛 Znane problemy i rozwiązania
+
+Wszystkie znane problemy zostały naprawione w wersji 1.0.2:
+- ✅ Ikony @heroicons → lucide-react
+- ✅ Walidacja Decimal w Pydantic
+- ✅ Typy date/time w schematach
+- ✅ Puste parametry zapytań
+
+Szczegóły: `BUGFIXES_v1.0.2.md` i `FIXES.md`
+
+---
+
 ## 📝 Licencja
 
 Projekt edukacyjny/wewnętrzny.
@@ -334,5 +358,9 @@ Projekt edukacyjny/wewnętrzny.
 ## 📞 Kontakt
 
 W razie pytań zobacz dokumentację w plikach:
+- **`QUICK_START.md`** ⭐ - start w 3 minuty (ZACZNIJ TUTAJ!)
 - `PAYMENTS_MODULE.md` - szczegóły modułu płatności
+- `BUGFIXES_v1.0.2.md` - naprawione błędy
+- `TESTING.md` - scenariusze testowe
+- `INSTALL.md` - szczegółowa instalacja
 - `.rules` - reguły projektu

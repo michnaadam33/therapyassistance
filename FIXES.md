@@ -102,7 +102,79 @@ amount: Optional[Decimal] = Field(None, ge=0)
 
 ---
 
-## Problem 3: Nieprawidłowe typy w AppointmentInPayment
+## Problem 3: Puste stringi w parametrach zapytań (date_from, date_to)
+
+### Opis problemu
+```
+{
+  "detail": [
+    {
+      "type": "date_from_datetime_parsing",
+      "loc": ["query", "date_from"],
+      "msg": "Input should be a valid date or datetime, input is too short",
+      "input": ""
+    }
+  ]
+}
+```
+
+Frontend wysyłał puste stringi `""` dla opcjonalnych parametrów dat (`date_from`, `date_to`) zamiast nie wysyłać ich wcale lub wysyłać `null`. Pydantic w wersji 2 waliduje puste stringi jako nieprawidłowe daty.
+
+### Rozwiązanie
+
+**Backend - dodano Query() dla opcjonalnych parametrów:**
+
+Plik: `backend/app/routers/payments.py`
+
+**Przed:**
+```python
+def get_all_payments(
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+):
+```
+
+**Po:**
+```python
+def get_all_payments(
+    date_from: Optional[date] = Query(None),
+    date_to: Optional[date] = Query(None),
+):
+```
+
+**Frontend - usunięto wysyłanie pustych stringów:**
+
+Plik: `frontend/src/pages/Payments.tsx`
+
+**Przed:**
+```typescript
+paymentsApi.getStatistics({
+  date_from: filters.date_from,  // może być pustym stringiem ""
+  date_to: filters.date_to,      // może być pustym stringiem ""
+})
+```
+
+**Po:**
+```typescript
+const statsParams: any = {};
+if (filters.date_from) {
+  statsParams.date_from = filters.date_from;
+}
+if (filters.date_to) {
+  statsParams.date_to = filters.date_to;
+}
+paymentsApi.getStatistics(statsParams);
+```
+
+### Wyjaśnienie
+- FastAPI z Pydantic v2 wymaga, aby opcjonalne parametry były albo `None` albo prawidłową wartością
+- Puste stringi są traktowane jako błędne dane wejściowe
+- Frontend teraz sprawdza czy wartość istnieje przed dodaniem do parametrów
+- Backend używa `Query(None)` dla jasnej definicji parametrów opcjonalnych
+
+---
+
+## Problem 4: Nieprawidłowe typy w AppointmentInPayment
 
 ### Opis problemu
 Schemat `AppointmentInPayment` miał błędnie zdefiniowane typy pól:
@@ -245,10 +317,13 @@ npm install lucide-react
 ## Changelog
 
 ### v1.0.2 (2024-01-15)
-- 🔧 Naprawiono walidację Decimal w schematach Pydantic
-- ✅ Usunięto nieprawidłowy constraint `decimal_places`
-- 🔧 Poprawiono typy w AppointmentInPayment (date, time zamiast datetime)
-- ✅ Backend uruchamia się poprawnie
+✅ Naprawiono walidację Decimal w schematach Pydantic  
+✅ Usunięto nieprawidłowy constraint `decimal_places`  
+✅ Poprawiono typy w AppointmentInPayment (date, time zamiast datetime)  
+✅ Naprawiono obsługę pustych parametrów dat w API  
+✅ Frontend nie wysyła pustych stringów jako parametrów  
+✅ Backend uruchamia się poprawnie  
+✅ Wszystkie endpointy działają poprawnie
 
 ### v1.0.1 (2024-01-15)
 - 🔧 Zamieniono @heroicons na lucide-react w modułach płatności
