@@ -1,0 +1,177 @@
+/* Calendar custom styles */
+
+/* Calendar container */
+.calendar-container {
+  @apply bg-white rounded-lg shadow-lg p-6;
+}
+
+/* Month view cells */
+.calendar-cell {
+  @apply min-h-[100px] p-2 border rounded-lg cursor-pointer transition-colors;
+}
+
+.calendar-cell:hover {
+  @apply bg-gray-100;
+}
+
+.calendar-cell-today {
+  @apply bg-blue-50;
+}
+
+.calendar-cell-selected {
+  @apply ring-2 ring-blue-500;
+}
+
+.calendar-cell-other-month {
+  @apply bg-gray-50 text-gray-400;
+}
+
+/* Appointment badges */
+.appointment-badge {
+  @apply text-xs p-1 bg-blue-100 text-blue-800 rounded truncate cursor-pointer;
+}
+
+.appointment-badge:hover {
+  @apply bg-blue-200;
+}
+
+/* Week view */
+.week-day-header {
+  @apply p-2 text-center font-semibold;
+}
+
+.week-day-header-today {
+  @apply bg-blue-100;
+}
+
+.week-day-appointments {
+  @apply p-2 space-y-2 min-h-[400px];
+}
+
+/* Day view */
+.day-hour-row {
+  @apply flex border-b;
+}
+
+.day-hour-label {
+  @apply w-20 p-2 text-right text-sm text-gray-600 border-r;
+}
+
+.day-hour-content {
+  @apply flex-1 p-2 min-h-[60px];
+}
+
+/* Appointment cards */
+.appointment-card {
+  @apply p-3 bg-blue-50 rounded-lg border border-blue-200 cursor-pointer;
+}
+
+.appointment-card:hover {
+  @apply bg-blue-100;
+}
+
+/* Calendar navigation */
+.calendar-nav-button {
+  @apply p-2 hover:bg-gray-100 rounded-lg transition-colors;
+}
+
+.calendar-view-button {
+  @apply px-3 py-1 rounded transition-colors;
+}
+
+.calendar-view-button-active {
+  @apply bg-blue-500 text-white;
+}
+
+.calendar-view-button-inactive {
+  @apply bg-gray-200 hover:bg-gray-300;
+}
+
+/* Form modal */
+.modal-overlay {
+  @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+}
+
+.modal-content {
+  @apply bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto;
+}
+
+/* Polish weekday names */
+.weekday-name {
+  @apply p-2 text-center font-semibold text-gray-600;
+}
+
+/* Statistics cards */
+.stat-card {
+  @apply bg-white p-4 rounded-lg shadow;
+}
+
+.stat-label {
+  @apply text-sm text-gray-600;
+}
+
+.stat-value {
+  @apply text-2xl font-bold text-gray-800;
+}
+
+/* Loading state */
+.calendar-loading {
+  @apply flex items-center justify-center h-64;
+}
+
+.calendar-loading-text {
+  @apply text-gray-500;
+}
+
+/* Empty state */
+.appointments-empty {
+  @apply text-gray-500 text-center py-8;
+}
+
+/* Action buttons */
+.btn-primary {
+  @apply px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors;
+}
+
+.btn-icon {
+  @apply p-2 hover:bg-gray-100 rounded transition-colors;
+}
+
+.btn-danger-icon {
+  @apply p-2 text-red-600 hover:bg-red-100 rounded transition-colors;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .calendar-cell {
+    @apply min-h-[80px] p-1;
+  }
+
+  .appointment-badge {
+    @apply text-xs;
+  }
+
+  .week-day-appointments {
+    @apply min-h-[300px];
+  }
+}
