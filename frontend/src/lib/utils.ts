@@ -39,6 +39,25 @@ export function formatDateTime(date: Date | string): string {
 }
 
 /**
+ * Format time string (HH:MM:SS) to HH:MM
+ */
+export function formatTime(time: string): string {
+  return time.slice(0, 5);
+}
+
+/**
+ * Get initials from name (first letters of first two words)
+ */
+export function getInitials(name: string): string {
+  return name
+    .split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+/**
  * Truncate text to specified length
  */
 export function truncate(text: string, length: number): string {
