@@ -94,6 +94,7 @@ export interface AppointmentInPayment {
   start_time: string;
   end_time: string;
   is_paid: boolean;
+  price?: number;
 }
 
 export interface PaymentWithPatient extends Payment {
