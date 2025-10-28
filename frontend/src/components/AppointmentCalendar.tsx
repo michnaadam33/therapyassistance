@@ -286,17 +286,13 @@ const AppointmentCalendar: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-1">
                         {appointment.is_paid ? (
-                          <CheckCircle
-                            size={14}
-                            className="text-green-600"
-                            title="Opłacona"
-                          />
+                          <span title="Opłacona">
+                            <CheckCircle size={14} className="text-green-600" />
+                          </span>
                         ) : (
-                          <XCircle
-                            size={14}
-                            className="text-gray-400"
-                            title="Nieopłacona"
-                          />
+                          <span title="Nieopłacona">
+                            <XCircle size={14} className="text-gray-400" />
+                          </span>
                         )}
                         <button
                           onClick={(e) => {
