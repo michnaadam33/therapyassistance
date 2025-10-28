@@ -76,6 +76,7 @@ def seed_database():
             end_time=time(11, 0),
             notes="Sesja #3 - omówienie strategii",
             is_paid=True,
+            price=150.00,
         )
 
         appointment2 = Appointment(
@@ -85,6 +86,7 @@ def seed_database():
             end_time=time(11, 0),
             notes="Sesja #4 - kontynuacja terapii",
             is_paid=True,
+            price=150.00,
         )
 
         appointment3 = Appointment(
@@ -94,6 +96,7 @@ def seed_database():
             end_time=time(15, 0),
             notes="Sesja #2 - CBT",
             is_paid=False,
+            price=200.00,
         )
 
         # Future appointments
@@ -104,6 +107,7 @@ def seed_database():
             end_time=time(11, 0),
             notes="Sesja cotygodniowa - omówienie postępów",
             is_paid=False,
+            price=150.00,
         )
 
         appointment5 = Appointment(
@@ -113,6 +117,7 @@ def seed_database():
             end_time=time(15, 0),
             notes="Kontynuacja terapii CBT",
             is_paid=False,
+            price=200.00,
         )
 
         appointment6 = Appointment(
@@ -122,6 +127,7 @@ def seed_database():
             end_time=time(11, 0),
             notes="Kolejna sesja cotygodniowa",
             is_paid=False,
+            price=150.00,
         )
 
         db.add(appointment1)

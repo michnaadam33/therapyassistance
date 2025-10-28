@@ -234,6 +234,11 @@ const PaymentDetail: React.FC = () => {
                           <div className="text-sm text-gray-500">
                             {appointment.start_time} - {appointment.end_time}
                           </div>
+                          {appointment.price && (
+                            <div className="text-sm text-green-600 font-semibold mt-1">
+                              💰 {formatAmount(appointment.price)}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center">
@@ -253,6 +258,46 @@ const PaymentDetail: React.FC = () => {
                   </li>
                 ))}
               </ul>
+              {(() => {
+                const totalAppointmentsPrice = payment.appointments.reduce(
+                  (sum, apt) => sum + (apt.price || 0),
+                  0,
+                );
+                const difference = payment.amount - totalAppointmentsPrice;
+
+                return (
+                  <div className="px-4 py-4 sm:px-6 bg-gray-50 border-t border-gray-200">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        Suma cen wizyt:
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {formatAmount(totalAppointmentsPrice)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm font-medium text-gray-700">
+                        Kwota płatności:
+                      </span>
+                      <span className="text-sm font-semibold text-gray-900">
+                        {formatAmount(payment.amount)}
+                      </span>
+                    </div>
+                    {Math.abs(difference) > 0.01 && (
+                      <div className="flex justify-between items-center pt-2 border-t border-gray-300">
+                        <span className="text-sm font-medium text-gray-700">
+                          {difference > 0 ? "Nadpłata:" : "Niedopłata:"}
+                        </span>
+                        <span
+                          className={`text-sm font-semibold ${difference > 0 ? "text-blue-600" : "text-red-600"}`}
+                        >
+                          {formatAmount(Math.abs(difference))}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

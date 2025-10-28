@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
-import { X, Calendar, Clock, User, FileText } from "lucide-react";
+import { X, Calendar, Clock, User, FileText, DollarSign } from "lucide-react";
 import { AppointmentFormData, Patient, Appointment } from "../types";
 import { appointmentsApi, patientsApi } from "../services/api";
 import { toast } from "react-toastify";
@@ -38,6 +38,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           start_time: appointment.start_time.slice(0, 5),
           end_time: appointment.end_time.slice(0, 5),
           notes: appointment.notes || "",
+          price: appointment.price || undefined,
         }
       : {
           patient_id: preselectedPatientId || 0,
@@ -47,6 +48,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           start_time: "09:00",
           end_time: "10:00",
           notes: "",
+          price: undefined,
         },
   });
 
@@ -72,6 +74,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         ...data,
         start_time: `${data.start_time}:00`,
         end_time: `${data.end_time}:00`,
+        price: data.price ? Number(data.price) : null,
       };
 
       // Validate that end time is after start time
@@ -237,6 +240,31 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             {errors.end_time && (
               <p className="text-red-500 text-sm mt-1">
                 {errors.end_time.message}
+              </p>
+            )}
+          </div>
+
+          {/* Cena wizyty */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              <DollarSign size={16} className="inline mr-1" />
+              Cena wizyty (PLN) *
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0.01"
+              {...register("price", {
+                required: "Cena wizyty jest wymagana",
+                min: { value: 0.01, message: "Cena musi być większa niż 0" },
+              })}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="np. 150.00"
+              required
+            />
+            {errors.price && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.price.message}
               </p>
             )}
           </div>

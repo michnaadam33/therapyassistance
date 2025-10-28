@@ -14,6 +14,7 @@ import {
   CreditCard,
   CheckCircle,
   XCircle,
+  AlertCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -362,6 +363,12 @@ const PatientDetail: React.FC = () => {
                           {formatTime(appointment.start_time)} -{" "}
                           {formatTime(appointment.end_time)}
                         </p>
+                        {appointment.price && (
+                          <p className="text-sm text-green-600 flex items-center mt-1">
+                            <span className="mr-1">💰</span>
+                            {Number(appointment.price).toFixed(2)} PLN
+                          </p>
+                        )}
                       </div>
                     </div>
                     {appointment.notes && (
@@ -545,7 +552,7 @@ const PatientDetail: React.FC = () => {
                   onClick={() => navigate(`/appointments/${appointment.id}`)}
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex-1">
+                    <div>
                       <p className="font-medium">
                         {formatDate(appointment.date)}
                       </p>
@@ -554,19 +561,25 @@ const PatientDetail: React.FC = () => {
                         {formatTime(appointment.start_time)} -{" "}
                         {formatTime(appointment.end_time)}
                       </p>
-                      <div className="mt-2">
-                        {appointment.is_paid ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                            <CheckCircle className="h-3 w-3 mr-1" />
-                            Opłacona
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                            <XCircle className="h-3 w-3 mr-1" />
-                            Nieopłacona
-                          </span>
-                        )}
-                      </div>
+                      {appointment.price && (
+                        <p className="text-sm text-green-600 flex items-center mt-1">
+                          <span className="mr-1">💰</span>
+                          {Number(appointment.price).toFixed(2)} PLN
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center">
+                      {appointment.is_paid ? (
+                        <span className="text-green-600 text-sm flex items-center">
+                          <CheckCircle className="h-4 w-4 mr-1" />
+                          Opłacona
+                        </span>
+                      ) : (
+                        <span className="text-orange-600 text-sm flex items-center">
+                          <AlertCircle className="h-4 w-4 mr-1" />
+                          Nieopłacona
+                        </span>
+                      )}
                     </div>
                   </div>
                   {appointment.notes && (

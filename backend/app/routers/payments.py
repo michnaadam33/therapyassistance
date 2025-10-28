@@ -63,6 +63,25 @@ def create_payment(
             detail=f"Wizyty o ID {paid_ids} są już opłacone",
         )
 
+    # Oblicz całkowitą cenę wybranych wizyt (zakładamy że każda wizyta ma cenę)
+    total_appointments_price = sum(
+        appointment.price for appointment in appointments if appointment.price
+    )
+
+    # Walidacja kwoty - sprawdź czy pokrywa cenę wizyt
+    if payment_data.amount < total_appointments_price:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Kwota płatności ({float(payment_data.amount)} PLN) jest mniejsza niż suma cen wybranych wizyt ({float(total_appointments_price)} PLN)",
+        )
+
+    # Ostrzeżenie jeśli kwota jest znacznie większa (nadpłata > 20%)
+    overpayment_threshold = total_appointments_price * Decimal("1.2")
+    if payment_data.amount > overpayment_threshold:
+        print(
+            f"Warning: Payment amount ({float(payment_data.amount)} PLN) is significantly higher than appointments total ({float(total_appointments_price)} PLN)"
+        )
+
     # Utwórz płatność
     payment_dict = payment_data.dict(exclude={"appointment_ids"})
     if payment_data.payment_date:
@@ -247,6 +266,32 @@ def update_payment(
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail=f"Wizyta o ID {app.id} jest już opłacona",
+                )
+
+        # Walidacja kwoty jeśli jest aktualizowana lub zmieniają się wizyty
+        if (
+            payment_update.amount is not None
+            or payment_update.appointment_ids is not None
+        ):
+            # Oblicz całkowitą cenę nowych wizyt (zakładamy że każda wizyta ma cenę)
+            total_appointments_price = sum(
+                appointment.price
+                for appointment in new_appointments
+                if appointment.price
+            )
+
+            # Użyj nowej kwoty lub istniejącej
+            amount_to_check = (
+                payment_update.amount
+                if payment_update.amount is not None
+                else payment.amount
+            )
+
+            # Walidacja kwoty
+            if amount_to_check < total_appointments_price:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Kwota płatności ({float(amount_to_check)} PLN) jest mniejsza niż suma cen wybranych wizyt ({float(total_appointments_price)} PLN)",
                 )
 
         # Oznacz stare wizyty jako nieopłacone

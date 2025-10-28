@@ -8,6 +8,7 @@ from sqlalchemy import (
     Text,
     ForeignKey,
     Boolean,
+    Numeric,
 )
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -24,6 +25,7 @@ class Appointment(Base):
     end_time = Column(Time, nullable=False)
     notes = Column(Text, nullable=True)
     is_paid = Column(Boolean, default=False, nullable=False)
+    price = Column(Numeric(10, 2), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships

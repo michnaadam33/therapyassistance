@@ -11,6 +11,7 @@ import {
   Banknote,
   FileText,
   CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { paymentsApi, patientsApi, appointmentsApi } from "../services/api";
 import { Patient, Appointment, PaymentFormData } from "../types";
@@ -52,12 +53,21 @@ const PaymentForm: React.FC = () => {
   useEffect(() => {
     // Automatyczne obliczanie kwoty na podstawie wybranych wizyt
     if (formData.appointment_ids.length > 0) {
-      // Zakładamy standardową cenę wizyty - można to później dostosować
-      const pricePerAppointment = 200; // PLN
-      const totalAmount = formData.appointment_ids.length * pricePerAppointment;
+      const selectedAppointments = unpaidAppointments.filter((apt) =>
+        formData.appointment_ids.includes(apt.id),
+      );
+
+      // Oblicz sumę cen wizyt (zakładamy że każda wizyta ma cenę)
+      const totalAmount = selectedAppointments.reduce(
+        (sum, apt) => sum + (apt.price || 0),
+        0,
+      );
+
       setFormData((prev) => ({ ...prev, amount: totalAmount }));
+    } else {
+      setFormData((prev) => ({ ...prev, amount: 0 }));
     }
-  }, [formData.appointment_ids]);
+  }, [formData.appointment_ids, unpaidAppointments]);
 
   const fetchInitialData = async () => {
     try {
@@ -144,6 +154,35 @@ const PaymentForm: React.FC = () => {
     if (formData.amount <= 0) {
       toast.error("Podaj poprawną kwotę");
       return;
+    }
+
+    // Walidacja kwoty względem cen wizyt (zakładamy że każda wizyta ma cenę)
+    const selectedAppointments = unpaidAppointments.filter((apt) =>
+      formData.appointment_ids.includes(apt.id),
+    );
+
+    const totalAppointmentsPrice = selectedAppointments.reduce(
+      (sum, apt) => sum + (apt.price || 0),
+      0,
+    );
+
+    // Sprawdź czy kwota jest wystarczająca
+    if (formData.amount < totalAppointmentsPrice) {
+      toast.error(
+        `Kwota płatności (${formatAmount(formData.amount)}) jest mniejsza niż suma cen wybranych wizyt (${formatAmount(totalAppointmentsPrice)})`,
+      );
+      return;
+    }
+
+    // Ostrzeżenie przy nadpłacie > 20%
+    const overpaymentThreshold = totalAppointmentsPrice * 1.2;
+    if (formData.amount > overpaymentThreshold) {
+      const confirmed = window.confirm(
+        `Kwota płatności (${formatAmount(formData.amount)}) jest znacznie wyższa niż suma cen wizyt (${formatAmount(totalAppointmentsPrice)}). Czy na pewno chcesz kontynuować?`,
+      );
+      if (!confirmed) {
+        return;
+      }
     }
 
     setLoading(true);
@@ -233,10 +272,19 @@ const PaymentForm: React.FC = () => {
                         className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                       />
                       <div className="ml-3 flex-1">
-                        <div className="text-sm font-medium text-gray-900">
-                          {format(new Date(appointment.date), "dd MMMM yyyy", {
-                            locale: pl,
-                          })}
+                        <div className="flex items-center justify-between">
+                          <div className="text-sm font-medium text-gray-900">
+                            {format(
+                              new Date(appointment.date),
+                              "dd MMMM yyyy",
+                              {
+                                locale: pl,
+                              },
+                            )}
+                          </div>
+                          <div className="text-sm font-semibold text-green-600">
+                            {formatAmount(appointment.price || 0)}
+                          </div>
                         </div>
                         <div className="text-xs text-gray-500">
                           {appointment.start_time} - {appointment.end_time}
@@ -251,10 +299,27 @@ const PaymentForm: React.FC = () => {
                     </label>
                   ))}
                 </div>
-                <p className="mt-2 text-sm text-gray-500">
-                  Wybrano {formData.appointment_ids.length} z{" "}
-                  {unpaidAppointments.length} nieopłaconych wizyt
-                </p>
+                {(() => {
+                  const selectedAppointments = unpaidAppointments.filter(
+                    (apt) => formData.appointment_ids.includes(apt.id),
+                  );
+                  const totalPrice = selectedAppointments.reduce(
+                    (sum, apt) => sum + (apt.price || 0),
+                    0,
+                  );
+
+                  return (
+                    <div className="mt-2 space-y-1">
+                      <p className="text-sm text-gray-500">
+                        Wybrano {formData.appointment_ids.length} z{" "}
+                        {unpaidAppointments.length} nieopłaconych wizyt
+                      </p>
+                      <p className="text-sm font-semibold text-green-600">
+                        Suma cen: {formatAmount(totalPrice)}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             )}
 
@@ -297,6 +362,48 @@ const PaymentForm: React.FC = () => {
                   {formatAmount(formData.amount)}
                 </p>
               )}
+              {(() => {
+                if (formData.appointment_ids.length === 0) return null;
+
+                const selectedAppointments = unpaidAppointments.filter((apt) =>
+                  formData.appointment_ids.includes(apt.id),
+                );
+                const totalPrice = selectedAppointments.reduce(
+                  (sum, apt) => sum + (apt.price || 0),
+                  0,
+                );
+
+                const difference = formData.amount - totalPrice;
+
+                if (Math.abs(difference) < 0.01) {
+                  return (
+                    <p className="mt-1 text-sm text-green-600 flex items-center">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Kwota pokrywa cenę wizyt
+                    </p>
+                  );
+                } else if (difference < 0) {
+                  return (
+                    <p className="mt-1 text-sm text-red-600 flex items-center">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      Za mało o {formatAmount(Math.abs(difference))}
+                    </p>
+                  );
+                } else if (difference > totalPrice * 0.2) {
+                  return (
+                    <p className="mt-1 text-sm text-amber-600 flex items-center">
+                      <AlertTriangle className="h-3 w-3 mr-1" />
+                      Nadpłata: {formatAmount(difference)}
+                    </p>
+                  );
+                } else {
+                  return (
+                    <p className="mt-1 text-sm text-blue-600">
+                      Nadpłata: {formatAmount(difference)}
+                    </p>
+                  );
+                }
+              })()}
             </div>
 
             {/* Metoda płatności */}

@@ -43,6 +43,7 @@ export interface Appointment {
   end_time: string;
   notes?: string;
   is_paid: boolean;
+  price?: number;
   created_at: string;
 }
 
@@ -53,6 +54,7 @@ export interface AppointmentFormData {
   end_time: string;
   notes?: string;
   is_paid?: boolean;
+  price?: number;
 }
 
 export interface SessionNote {

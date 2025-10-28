@@ -27,6 +27,7 @@ import {
   Trash2,
   CheckCircle,
   XCircle,
+  DollarSign,
 } from "lucide-react";
 import { Appointment, Patient } from "../types";
 import { appointmentsApi, patientsApi } from "../services/api";
@@ -380,6 +381,12 @@ const AppointmentCalendar: React.FC = () => {
                             <User size={14} className="inline mr-1" />
                             {appointment.patient?.name}
                           </div>
+                          {appointment.price && (
+                            <div className="text-sm text-green-600 mt-1">
+                              <DollarSign size={14} className="inline mr-1" />
+                              {Number(appointment.price).toFixed(2)} PLN
+                            </div>
+                          )}
                           {appointment.notes && (
                             <div className="text-sm text-gray-600 mt-2">
                               {appointment.notes}
@@ -447,6 +454,12 @@ const AppointmentCalendar: React.FC = () => {
                       <User size={14} className="inline mr-2" />
                       {appointment.patient?.name}
                     </div>
+                    {appointment.price && (
+                      <div className="text-sm text-green-600 mt-1">
+                        <DollarSign size={14} className="inline mr-2" />
+                        {Number(appointment.price).toFixed(2)} PLN
+                      </div>
+                    )}
                     {appointment.notes && (
                       <div className="text-sm text-gray-500 mt-2">
                         {appointment.notes}
