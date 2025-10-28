@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Any
-from datetime import date
+from datetime import date, datetime
 
 from app.core.database import get_db
 from app.core.deps import get_current_active_user
@@ -94,7 +94,7 @@ def create_appointment(
             detail="Wizyta koliduje z inną wizytą w tym terminie",
         )
 
-    db_appointment = Appointment(**appointment_data.dict())
+    db_appointment = Appointment(**appointment_data.model_dump())
     db.add(db_appointment)
     db.commit()
     db.refresh(db_appointment)
@@ -119,7 +119,23 @@ def update_appointment(
         )
 
     # Update only provided fields
-    update_data = appointment_data.dict(exclude_unset=True)
+    update_data = appointment_data.model_dump(exclude_unset=True)
+
+    # Convert string date/time to proper types
+    if "date" in update_data and isinstance(update_data["date"], str):
+        update_data["date"] = datetime.strptime(update_data["date"], "%Y-%m-%d").date()
+
+    if "start_time" in update_data and isinstance(update_data["start_time"], str):
+        time_str = update_data["start_time"]
+        if len(time_str.split(":")) == 2:
+            time_str = f"{time_str}:00"
+        update_data["start_time"] = datetime.strptime(time_str, "%H:%M:%S").time()
+
+    if "end_time" in update_data and isinstance(update_data["end_time"], str):
+        time_str = update_data["end_time"]
+        if len(time_str.split(":")) == 2:
+            time_str = f"{time_str}:00"
+        update_data["end_time"] = datetime.strptime(time_str, "%H:%M:%S").time()
 
     # If patient_id is being updated, check if patient exists
     if "patient_id" in update_data:

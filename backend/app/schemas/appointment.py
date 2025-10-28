@@ -1,6 +1,6 @@
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator, ConfigDict
 from datetime import datetime, date, time
-from typing import Optional
+from typing import Optional, Any
 from decimal import Decimal
 
 
@@ -17,7 +17,8 @@ class AppointmentBase(BaseModel):
 class AppointmentCreate(AppointmentBase):
     price: Decimal  # Wymagane przy tworzeniu
 
-    @validator("price")
+    @field_validator("price")
+    @classmethod
     def validate_price(cls, v):
         if v is None:
             raise ValueError("Cena wizyty jest wymagana")
@@ -27,10 +28,14 @@ class AppointmentCreate(AppointmentBase):
 
 
 class AppointmentUpdate(BaseModel):
+    """Schema for partial appointment updates - all fields are optional"""
+
+    model_config = ConfigDict(from_attributes=True)
+
     patient_id: Optional[int] = None
-    date: Optional[date] = None
-    start_time: Optional[time] = None
-    end_time: Optional[time] = None
+    date: Optional[str] = None  # Accept string for date
+    start_time: Optional[str] = None  # Accept string for time
+    end_time: Optional[str] = None  # Accept string for time
     notes: Optional[str] = None
     is_paid: Optional[bool] = None
     price: Optional[Decimal] = None
@@ -40,5 +45,4 @@ class Appointment(AppointmentBase):
     id: int
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

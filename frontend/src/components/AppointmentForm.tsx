@@ -41,7 +41,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           price: appointment.price || undefined,
         }
       : {
-          patient_id: preselectedPatientId || 0,
+          patient_id: preselectedPatientId || undefined,
           date: preselectedDate
             ? format(preselectedDate, "yyyy-MM-dd")
             : format(new Date(), "yyyy-MM-dd"),
@@ -55,6 +55,15 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   useEffect(() => {
     fetchPatients();
   }, []);
+
+  // Set patient_id after patients are loaded (for edit mode)
+  useEffect(() => {
+    if (appointment && patients.length > 0) {
+      setValue("patient_id", appointment.patient_id);
+    } else if (preselectedPatientId && patients.length > 0) {
+      setValue("patient_id", preselectedPatientId);
+    }
+  }, [patients, appointment, preselectedPatientId, setValue]);
 
   const fetchPatients = async () => {
     try {
@@ -71,10 +80,13 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
 
       // Format time with seconds
       const formattedData = {
-        ...data,
+        patient_id: data.patient_id,
+        date: data.date,
         start_time: `${data.start_time}:00`,
         end_time: `${data.end_time}:00`,
-        price: data.price ? Number(data.price) : null,
+        notes: data.notes || "",
+        is_paid: data.is_paid ?? false,
+        price: data.price ? Number(data.price) : undefined,
       };
 
       // Validate that end time is after start time
@@ -157,11 +169,11 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             <select
               {...register("patient_id", {
                 required: "Wybierz pacjenta",
-                min: { value: 1, message: "Wybierz pacjenta" },
+                validate: (value) => (value && value > 0) || "Wybierz pacjenta",
               })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value={0}>-- Wybierz pacjenta --</option>
+              <option value="">-- Wybierz pacjenta --</option>
               {patients.map((patient) => (
                 <option key={patient.id} value={patient.id}>
                   {patient.name}
