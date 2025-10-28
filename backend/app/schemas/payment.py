@@ -39,6 +39,7 @@ class PaymentUpdate(BaseModel):
     payment_method: Optional[PaymentMethodEnum] = None
     description: Optional[str] = None
     payment_date: Optional[datetime] = None
+    appointment_ids: Optional[List[int]] = None
 
 
 class Payment(PaymentBase):

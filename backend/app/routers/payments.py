@@ -199,7 +199,12 @@ def update_payment(
     """
     Aktualizacja szczegółów płatności
     """
-    payment = db.query(Payment).filter(Payment.id == payment_id).first()
+    payment = (
+        db.query(Payment)
+        .options(joinedload(Payment.appointments))
+        .filter(Payment.id == payment_id)
+        .first()
+    )
 
     if not payment:
         raise HTTPException(
@@ -208,7 +213,52 @@ def update_payment(
         )
 
     # Aktualizuj tylko podane pola
-    update_data = payment_update.dict(exclude_unset=True)
+    update_data = payment_update.dict(exclude_unset=True, exclude={"appointment_ids"})
+
+    # Jeśli appointment_ids są podane, zaktualizuj powiązane wizyty
+    if payment_update.appointment_ids is not None:
+        # Sprawdź czy pacjent istnieje
+        patient = db.query(Patient).filter(Patient.id == payment.patient_id).first()
+        if not patient:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Pacjent nie został znaleziony",
+            )
+
+        # Pobierz nowe wizyty
+        new_appointments = (
+            db.query(Appointment)
+            .filter(
+                Appointment.id.in_(payment_update.appointment_ids),
+                Appointment.patient_id == payment.patient_id,
+            )
+            .all()
+        )
+
+        if len(new_appointments) != len(payment_update.appointment_ids):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Niektóre wizyty nie istnieją lub nie należą do tego pacjenta",
+            )
+
+        # Sprawdź czy nowe wizyty nie są już opłacone przez inną płatność
+        for app in new_appointments:
+            if app.is_paid and app not in payment.appointments:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Wizyta o ID {app.id} jest już opłacona",
+                )
+
+        # Oznacz stare wizyty jako nieopłacone
+        for old_appointment in payment.appointments:
+            old_appointment.is_paid = False
+
+        # Przypisz nowe wizyty i oznacz jako opłacone
+        payment.appointments = new_appointments
+        for new_appointment in new_appointments:
+            new_appointment.is_paid = True
+
+    # Aktualizuj pozostałe pola
     for field, value in update_data.items():
         setattr(payment, field, value)
 
