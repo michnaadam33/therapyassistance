@@ -187,6 +187,13 @@ dist/
 .env.test.local
 .env.production
 .env.production.local
+.env.mikrus
+
+# Deployment sensitive files
+deploy-keys/
+*.pem
+*.key
+ssl-certificates/
 
 # Alembic
 alembic/versions/*.pyc
@@ -195,6 +202,15 @@ alembic/versions/__pycache__/
 # Frontend build
 frontend/dist/
 frontend/build/
+frontend/.env.production
+
+# Deployment
+backups/
+*.dump
+*.dump.gz
+*.sql
+*.sql.gz
+deployment-logs/
 
 # Backend
 backend/instance/

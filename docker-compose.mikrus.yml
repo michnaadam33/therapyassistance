@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  # Backend FastAPI application
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: therapyassistance-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # Use shared PostgreSQL on Mikrus
+      DATABASE_URL: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRATION_HOURS: 24
+      # CORS - allow Vercel frontend
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+    volumes:
+      - ./backend:/app
+      - backend_logs:/app/logs
+    networks:
+      - therapyassistance-network
+    command: >
+      sh -c "
+        echo 'Waiting for database connection...' &&
+        sleep 5 &&
+        alembic upgrade head 2>/dev/null || echo 'Alembic migrations skipped (run manually if needed)' &&
+        uvicorn app.main:app --host 0.0.0.0 --port 8000
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  therapyassistance-network:
+    driver: bridge
+
+volumes:
+  backend_logs:
+    driver: local

@@ -4,6 +4,25 @@ Pełna aplikacja webowa (backend + frontend) dla psychoterapeutów.
 
 **Wersja:** 1.0.2 | **Status:** Production Ready ✅
 
+## 🚀 Wdrożenie Produkcyjne
+
+### Najtańsza opcja: Vercel + Mikrus = **75 zł/rok**
+
+- **Frontend**: Vercel (darmowy hosting)
+- **Backend + DB**: Mikrus VPS 2.1 (75 zł/rok)
+- **PostgreSQL**: Współdzielona baza na Mikrus (w cenie)
+
+📚 **Dokumentacja wdrożenia:**
+- [📑 INDEKS - Zacznij tutaj!](DEPLOYMENT_INDEX.md) - Przegląd wszystkich dokumentów
+- [📖 Pełny przewodnik](DEPLOYMENT_GUIDE.md) - Szczegółowy przewodnik krok po kroku
+- [⚡ Szybki start](DEPLOYMENT_QUICKSTART.md) - Komendy i checklist (10 minut)
+- [❓ FAQ](DEPLOYMENT_FAQ.md) - Najczęstsze pytania i problemy
+- [📦 Pliki konfiguracyjne](DEPLOYMENT_README.md) - Opis wszystkich plików
+- [🔄 Flow](DEPLOYMENT_FLOW.md) - Wizualizacja procesu wdrożenia
+- [💻 Komendy](COMMANDS_CHEATSHEET.md) - Ściąga ze wszystkimi komendami
+
+---
+
 ## 📋 Opis projektu
 
 Aplikacja **TherapyAssistance** umożliwia psychoterapeutom kompleksowe zarządzanie:
@@ -22,9 +41,9 @@ therapyassistance/
 
 ---
 
-## 🚀 Szybki start
+## 🚀 Szybki start (Development)
 
-### Uruchomienie całej aplikacji:
+### Uruchomienie całej aplikacji lokalnie:
 ```bash
 # 1. Uruchom kontenery
 docker compose up
