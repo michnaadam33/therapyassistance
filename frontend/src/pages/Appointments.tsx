@@ -276,7 +276,7 @@ const Appointments: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardContent className="p-4">
             <div className="text-sm text-gray-600">Dzisiaj</div>
@@ -314,14 +314,6 @@ const Appointments: React.FC = () => {
             <div className="text-sm text-gray-600">Nieopłacone</div>
             <div className="text-2xl font-bold text-red-600">
               {stats.unpaidCount}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-gray-600">Przychód</div>
-            <div className="text-2xl font-bold text-blue-600">
-              {stats.totalRevenue} zł
             </div>
           </CardContent>
         </Card>
