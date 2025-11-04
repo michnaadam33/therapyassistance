@@ -14,3 +14,6 @@ class SessionNote(Base):
 
     # Relationships
     patient = relationship("Patient", back_populates="session_notes")
+    appointment = relationship(
+        "Appointment", back_populates="session_note", uselist=False
+    )

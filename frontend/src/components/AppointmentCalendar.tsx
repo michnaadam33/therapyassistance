@@ -309,11 +309,6 @@ const AppointmentCalendar: React.FC = () => {
                       <User size={12} className="inline mr-1" />
                       {appointment.patient?.name}
                     </div>
-                    {appointment.notes && (
-                      <div className="text-xs text-gray-600 mt-1 truncate">
-                        {appointment.notes}
-                      </div>
-                    )}
                     {appointment.is_paid && (
                       <div className="text-xs text-green-600 mt-1 font-medium">
                         ✓ Opłacona
@@ -383,11 +378,6 @@ const AppointmentCalendar: React.FC = () => {
                               {Number(appointment.price).toFixed(2)} PLN
                             </div>
                           )}
-                          {appointment.notes && (
-                            <div className="text-sm text-gray-600 mt-2">
-                              {appointment.notes}
-                            </div>
-                          )}
                         </div>
                         <button
                           onClick={(e) => {
@@ -454,11 +444,6 @@ const AppointmentCalendar: React.FC = () => {
                       <div className="text-sm text-green-600 mt-1">
                         <DollarSign size={14} className="inline mr-2" />
                         {Number(appointment.price).toFixed(2)} PLN
-                      </div>
-                    )}
-                    {appointment.notes && (
-                      <div className="text-sm text-gray-500 mt-2">
-                        {appointment.notes}
                       </div>
                     )}
                   </div>

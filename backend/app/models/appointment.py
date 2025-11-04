@@ -23,13 +23,14 @@ class Appointment(Base):
     date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=False)
     end_time = Column(Time, nullable=False)
-    notes = Column(Text, nullable=True)
+    session_note_id = Column(Integer, ForeignKey("session_notes.id"), nullable=True)
     is_paid = Column(Boolean, default=False, nullable=False)
     price = Column(Numeric(10, 2), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # Relationships
     patient = relationship("Patient", back_populates="appointments")
+    session_note = relationship("SessionNote", back_populates="appointment")
     payments = relationship(
         "Payment", secondary="payment_appointments", back_populates="appointments"
     )

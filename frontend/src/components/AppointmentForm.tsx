@@ -2,8 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { X, Calendar, Clock, User, FileText, DollarSign } from "lucide-react";
-import { AppointmentFormData, Patient, Appointment } from "../types";
-import { appointmentsApi, patientsApi } from "../services/api";
+import {
+  AppointmentFormData,
+  Patient,
+  Appointment,
+  SessionNote,
+} from "../types";
+import { appointmentsApi, patientsApi, sessionNotesApi } from "../services/api";
 import { toast } from "react-toastify";
 
 interface AppointmentFormProps {
@@ -22,6 +27,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
   preselectedPatientId,
 }) => {
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [sessionNotes, setSessionNotes] = useState<SessionNote[]>([]);
   const [loading, setLoading] = useState(false);
 
   const {
@@ -37,7 +43,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
           date: appointment.date,
           start_time: appointment.start_time.slice(0, 5),
           end_time: appointment.end_time.slice(0, 5),
-          notes: appointment.notes || "",
+          session_note_id: appointment.session_note_id || undefined,
           price: appointment.price || undefined,
         }
       : {
@@ -47,13 +53,14 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             : format(new Date(), "yyyy-MM-dd"),
           start_time: "09:00",
           end_time: "10:00",
-          notes: "",
+          session_note_id: undefined,
           price: undefined,
         },
   });
 
   useEffect(() => {
     fetchPatients();
+    fetchSessionNotes();
   }, []);
 
   // Set patient_id after patients are loaded (for edit mode)
@@ -74,6 +81,15 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
   };
 
+  const fetchSessionNotes = async () => {
+    try {
+      const data = await sessionNotesApi.getAll();
+      setSessionNotes(data);
+    } catch (error) {
+      console.error("Błąd podczas pobierania notatek");
+    }
+  };
+
   const onSubmit = async (data: AppointmentFormData) => {
     try {
       setLoading(true);
@@ -84,7 +100,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
         date: data.date,
         start_time: `${data.start_time}:00`,
         end_time: `${data.end_time}:00`,
-        notes: data.notes || "",
+        session_note_id: data.session_note_id || undefined,
         is_paid: data.is_paid ?? false,
         price: data.price ? Number(data.price) : undefined,
       };
@@ -281,18 +297,28 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({
             )}
           </div>
 
-          {/* Notatki */}
+          {/* Notatka z sesji */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               <FileText size={16} className="inline mr-1" />
-              Notatki
+              Notatka z sesji (opcjonalnie)
             </label>
-            <textarea
-              {...register("notes")}
-              rows={4}
+            <select
+              {...register("session_note_id")}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Dodatkowe informacje o wizycie..."
-            />
+            >
+              <option value="">-- Brak notatki --</option>
+              {sessionNotes.map((note) => (
+                <option key={note.id} value={note.id}>
+                  {new Date(note.created_at).toLocaleDateString("pl-PL")} -{" "}
+                  {note.content.substring(0, 50)}...
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              Możesz przypisać istniejącą notatkę do tej wizyty lub utworzyć
+              nową w sekcji Notatki
+            </p>
           </div>
 
           {/* Przyciski */}

@@ -463,13 +463,6 @@ const Appointments: React.FC = () => {
                           </span>
                         </div>
                       )}
-
-                      {appointment.notes && (
-                        <div className="text-sm text-gray-600 mt-2">
-                          <span className="font-medium">Notatki:</span>{" "}
-                          {appointment.notes}
-                        </div>
-                      )}
                     </div>
 
                     {/* Status and Actions */}

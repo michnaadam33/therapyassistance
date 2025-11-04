@@ -51,28 +51,24 @@ def add_sample_appointments():
                 "date": today,
                 "start_time": time(10, 0),
                 "end_time": time(11, 0),
-                "notes": "Sesja regularna - omówienie postępów",
             },
             {
                 "patient_id": patients[1 % len(patients)].id,
                 "date": today,
                 "start_time": time(14, 30),
                 "end_time": time(15, 30),
-                "notes": "Konsultacja początkowa",
             },
             {
                 "patient_id": patients[0].id,
                 "date": today + timedelta(days=2),
                 "start_time": time(9, 0),
                 "end_time": time(10, 0),
-                "notes": "Terapia behawioralna",
             },
             {
                 "patient_id": patients[1 % len(patients)].id,
                 "date": today + timedelta(days=3),
                 "start_time": time(16, 0),
                 "end_time": time(17, 0),
-                "notes": "Sesja follow-up",
             },
         ]
 
@@ -84,28 +80,24 @@ def add_sample_appointments():
                 "date": next_week,
                 "start_time": time(11, 0),
                 "end_time": time(12, 0),
-                "notes": "Sesja terapeutyczna",
             },
             {
                 "patient_id": patients[1 % len(patients)].id,
                 "date": next_week + timedelta(days=1),
                 "start_time": time(13, 0),
                 "end_time": time(14, 0),
-                "notes": "Omówienie planu terapii",
             },
             {
                 "patient_id": patients[0].id,
                 "date": next_week + timedelta(days=3),
                 "start_time": time(10, 30),
                 "end_time": time(11, 30),
-                "notes": "Sesja CBT",
             },
             {
                 "patient_id": patients[1 % len(patients)].id,
                 "date": next_week + timedelta(days=4),
                 "start_time": time(15, 0),
                 "end_time": time(16, 0),
-                "notes": "Konsultacja rodzinna",
             },
         ]
 
@@ -125,7 +117,6 @@ def add_sample_appointments():
                             "date": appointment_date,
                             "start_time": time(9, 30),
                             "end_time": time(10, 30),
-                            "notes": f"Sesja regularna - tydzień {week_offset + 1}",
                         }
                     )
                 # Afternoon appointment
@@ -137,7 +128,6 @@ def add_sample_appointments():
                             "date": appointment_date,
                             "start_time": time(hour, 0),
                             "end_time": time(hour + 1, 0),
-                            "notes": f"Wizyta kontrolna - tydzień {week_offset + 1}",
                         }
                     )
 
@@ -149,28 +139,24 @@ def add_sample_appointments():
                 "date": month2_start,
                 "start_time": time(10, 0),
                 "end_time": time(11, 30),
-                "notes": "Sesja miesięczna - podsumowanie",
             },
             {
                 "patient_id": patients[1 % len(patients)].id,
                 "date": month2_start + timedelta(days=7),
                 "start_time": time(14, 0),
                 "end_time": time(15, 0),
-                "notes": "Ocena postępów terapii",
             },
             {
                 "patient_id": patients[0].id,
                 "date": month2_start + timedelta(days=14),
                 "start_time": time(11, 0),
                 "end_time": time(12, 0),
-                "notes": "Planowanie dalszej terapii",
             },
             {
                 "patient_id": patients[1 % len(patients)].id,
                 "date": month2_start + timedelta(days=21),
                 "start_time": time(16, 30),
                 "end_time": time(17, 30),
-                "notes": "Sesja zamykająca cykl",
             },
         ]
 
@@ -191,7 +177,6 @@ def add_sample_appointments():
                     "date": past_date,
                     "start_time": time(10 + (days_ago % 8), 0),
                     "end_time": time(11 + (days_ago % 8), 0),
-                    "notes": f"Sesja archiwalna - {days_ago} dni temu",
                 }
             )
 

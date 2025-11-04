@@ -74,7 +74,6 @@ def seed_database():
             date=two_weeks_ago,
             start_time=time(10, 0),
             end_time=time(11, 0),
-            notes="Sesja #3 - omówienie strategii",
             is_paid=True,
             price=150.00,
         )
@@ -84,7 +83,6 @@ def seed_database():
             date=last_week,
             start_time=time(10, 0),
             end_time=time(11, 0),
-            notes="Sesja #4 - kontynuacja terapii",
             is_paid=True,
             price=150.00,
         )
@@ -94,7 +92,6 @@ def seed_database():
             date=last_week,
             start_time=time(14, 0),
             end_time=time(15, 0),
-            notes="Sesja #2 - CBT",
             is_paid=False,
             price=200.00,
         )
@@ -105,7 +102,6 @@ def seed_database():
             date=tomorrow,
             start_time=time(10, 0),
             end_time=time(11, 0),
-            notes="Sesja cotygodniowa - omówienie postępów",
             is_paid=False,
             price=150.00,
         )
@@ -115,7 +111,6 @@ def seed_database():
             date=tomorrow,
             start_time=time(14, 0),
             end_time=time(15, 0),
-            notes="Kontynuacja terapii CBT",
             is_paid=False,
             price=200.00,
         )
@@ -125,7 +120,6 @@ def seed_database():
             date=next_week,
             start_time=time(10, 0),
             end_time=time(11, 0),
-            notes="Kolejna sesja cotygodniowa",
             is_paid=False,
             price=150.00,
         )
@@ -198,7 +192,17 @@ def seed_database():
         db.add(note2)
         db.add(note3)
         db.commit()
+        db.refresh(note1)
+        db.refresh(note2)
+        db.refresh(note3)
         print("✅ Utworzono 3 notatki z sesji")
+
+        # Link session notes to appointments
+        appointment2.session_note_id = note3.id
+        appointment3.session_note_id = note2.id
+        appointment4.session_note_id = note1.id
+        db.commit()
+        print("✅ Połączono wizyty z notatkami")
 
         # Create payments
         payment1 = Payment(

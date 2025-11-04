@@ -9,7 +9,7 @@ class AppointmentBase(BaseModel):
     date: date
     start_time: time
     end_time: time
-    notes: Optional[str] = None
+    session_note_id: Optional[int] = None
     is_paid: bool = False
     price: Optional[Decimal] = None
 
@@ -36,7 +36,7 @@ class AppointmentUpdate(BaseModel):
     date: Optional[str] = None  # Accept string for date
     start_time: Optional[str] = None  # Accept string for time
     end_time: Optional[str] = None  # Accept string for time
-    notes: Optional[str] = None
+    session_note_id: Optional[int] = None
     is_paid: Optional[bool] = None
     price: Optional[Decimal] = None
 

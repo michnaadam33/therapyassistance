@@ -142,6 +142,11 @@ export const appointmentsApi = {
 
 // Session notes endpoints
 export const sessionNotesApi = {
+  getAll: async (): Promise<SessionNote[]> => {
+    const response = await api.get<SessionNote[]>("/session_notes/");
+    return response.data;
+  },
+
   getByPatient: async (patientId: number): Promise<SessionNote[]> => {
     const response = await api.get<SessionNote[]>(
       `/session_notes/${patientId}`,

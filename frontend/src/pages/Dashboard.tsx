@@ -114,13 +114,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-900">Panel główny</h2>
-        <p className="mt-1 text-sm text-gray-600">
-          Witaj ponownie! Oto przegląd Twojej praktyki.
-        </p>
-      </div>
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((stat) => (

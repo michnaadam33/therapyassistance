@@ -15,6 +15,26 @@ from app.schemas.session_note import (
 router = APIRouter(prefix="/session_notes", tags=["session_notes"])
 
 
+@router.get("/", response_model=List[SessionNoteSchema])
+def get_all_session_notes(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
+    """
+    Pobierz wszystkie notatki z sesji
+    """
+    session_notes = (
+        db.query(SessionNote)
+        .order_by(SessionNote.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return session_notes
+
+
 @router.get("/{patient_id}", response_model=List[SessionNoteSchema])
 def get_session_notes(
     patient_id: int,
