@@ -12,6 +12,10 @@ class SessionNoteCreate(SessionNoteBase):
     pass
 
 
+class SessionNoteUpdate(BaseModel):
+    content: str
+
+
 class SessionNote(SessionNoteBase):
     id: int
     created_at: datetime

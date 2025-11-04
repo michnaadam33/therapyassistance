@@ -31,7 +31,7 @@ import {
   FileText,
 } from "lucide-react";
 import { Appointment, Patient } from "../types";
-import { appointmentsApi, patientsApi } from "../services/api";
+import { appointmentsApi, patientsApi, sessionNotesApi } from "../services/api";
 import { toast } from "react-toastify";
 import AppointmentForm from "./AppointmentForm";
 import QuickSessionNoteForm from "./QuickSessionNoteForm";
@@ -59,6 +59,9 @@ const AppointmentCalendar: React.FC = () => {
   const [showQuickNoteForm, setShowQuickNoteForm] = useState(false);
   const [noteAppointment, setNoteAppointment] =
     useState<AppointmentWithPatient | null>(null);
+  const [editingNoteContent, setEditingNoteContent] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     fetchAppointmentsAndPatients();
@@ -124,30 +127,49 @@ const AppointmentCalendar: React.FC = () => {
     }
   };
 
-  const handleAddNote = (appointment: AppointmentWithPatient) => {
+  const handleAddOrEditNote = async (appointment: AppointmentWithPatient) => {
     setNoteAppointment(appointment);
+
+    // If editing existing note, fetch its content
+    if (appointment.session_note_id) {
+      try {
+        const noteData = await sessionNotesApi.getById(
+          appointment.session_note_id,
+        );
+        setEditingNoteContent(noteData.content);
+      } catch (error) {
+        toast.error("Błąd podczas pobierania notatki");
+        return;
+      }
+    } else {
+      setEditingNoteContent(undefined);
+    }
+
     setShowQuickNoteForm(true);
   };
 
   const handleQuickNoteSuccess = async (noteId: number) => {
-    if (noteAppointment) {
+    // Update appointment with the new note (only if it's a new note)
+    if (noteAppointment && !noteAppointment.session_note_id) {
       try {
         await appointmentsApi.update(noteAppointment.id, {
           session_note_id: noteId,
         });
         toast.success("Notatka została przypisana do wizyty");
-        fetchAppointmentsAndPatients();
       } catch (error) {
         toast.error("Błąd podczas przypisywania notatki do wizyty");
       }
     }
+    fetchAppointmentsAndPatients();
     setShowQuickNoteForm(false);
     setNoteAppointment(null);
+    setEditingNoteContent(undefined);
   };
 
   const handleQuickNoteCancel = () => {
     setShowQuickNoteForm(false);
     setNoteAppointment(null);
+    setEditingNoteContent(undefined);
   };
 
   const handleDeleteAppointment = async (id: number) => {
@@ -414,10 +436,18 @@ const AppointmentCalendar: React.FC = () => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleAddNote(appointment);
+                              handleAddOrEditNote(appointment);
                             }}
-                            className="p-2 text-blue-600 hover:bg-blue-100 rounded"
-                            title="Dodaj notatkę"
+                            className={`p-2 hover:bg-blue-100 rounded ${
+                              appointment.session_note_id
+                                ? "text-amber-600"
+                                : "text-blue-600"
+                            }`}
+                            title={
+                              appointment.session_note_id
+                                ? "Edytuj notatkę"
+                                : "Dodaj notatkę"
+                            }
                           >
                             <FileText size={16} />
                           </button>
@@ -494,10 +524,18 @@ const AppointmentCalendar: React.FC = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleAddNote(appointment);
+                        handleAddOrEditNote(appointment);
                       }}
-                      className="p-2 text-blue-600 hover:bg-blue-100 rounded"
-                      title="Dodaj notatkę"
+                      className={`p-2 hover:bg-blue-100 rounded ${
+                        appointment.session_note_id
+                          ? "text-amber-600"
+                          : "text-blue-600"
+                      }`}
+                      title={
+                        appointment.session_note_id
+                          ? "Edytuj notatkę"
+                          : "Dodaj notatkę"
+                      }
                     >
                       <FileText size={18} />
                     </button>
@@ -629,6 +667,8 @@ const AppointmentCalendar: React.FC = () => {
               locale: pl,
             },
           )}
+          existingNoteId={noteAppointment.session_note_id}
+          existingNoteContent={editingNoteContent}
           onClose={handleQuickNoteCancel}
           onSuccess={handleQuickNoteSuccess}
         />

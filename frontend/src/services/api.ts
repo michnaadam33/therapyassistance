@@ -154,8 +154,20 @@ export const sessionNotesApi = {
     return response.data;
   },
 
+  getById: async (id: number): Promise<SessionNote> => {
+    const response = await api.get<SessionNote>(`/session_notes/note/${id}`);
+    return response.data;
+  },
+
   create: async (data: SessionNoteFormData): Promise<SessionNote> => {
     const response = await api.post<SessionNote>("/session_notes", data);
+    return response.data;
+  },
+
+  update: async (id: number, content: string): Promise<SessionNote> => {
+    const response = await api.put<SessionNote>(`/session_notes/note/${id}`, {
+      content,
+    });
     return response.data;
   },
 

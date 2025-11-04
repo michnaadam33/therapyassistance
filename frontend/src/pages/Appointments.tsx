@@ -17,7 +17,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import AppointmentForm from "../components/AppointmentForm";
 import QuickSessionNoteForm from "../components/QuickSessionNoteForm";
-import { appointmentsApi, patientsApi, paymentsApi } from "../services/api";
+import {
+  appointmentsApi,
+  patientsApi,
+  paymentsApi,
+  sessionNotesApi,
+} from "../services/api";
 import { Appointment, Patient, PaymentMethod } from "../types";
 import { formatDate, formatTime } from "@/lib/utils";
 import { toast } from "react-toastify";
@@ -67,6 +72,9 @@ const Appointments: React.FC = () => {
   const [showQuickNoteForm, setShowQuickNoteForm] = useState(false);
   const [noteAppointment, setNoteAppointment] =
     useState<AppointmentWithPatient | null>(null);
+  const [editingNoteContent, setEditingNoteContent] = useState<
+    string | undefined
+  >(undefined);
 
   useEffect(() => {
     fetchData();
@@ -198,24 +206,40 @@ const Appointments: React.FC = () => {
     setPaymentAppointment(null);
   };
 
-  const handleAddNote = (appointment: AppointmentWithPatient) => {
+  const handleAddOrEditNote = async (appointment: AppointmentWithPatient) => {
     setNoteAppointment(appointment);
+
+    // If editing existing note, fetch its content
+    if (appointment.session_note_id) {
+      try {
+        const noteData = await sessionNotesApi.getById(
+          appointment.session_note_id,
+        );
+        setEditingNoteContent(noteData.content);
+      } catch (error) {
+        toast.error("Błąd podczas pobierania notatki");
+        return;
+      }
+    } else {
+      setEditingNoteContent(undefined);
+    }
+
     setShowQuickNoteForm(true);
   };
 
   const handleQuickNoteSuccess = async (noteId: number) => {
-    // Update appointment with the new note
-    if (noteAppointment) {
+    // Update appointment with the new note (only if it's a new note)
+    if (noteAppointment && !noteAppointment.session_note_id) {
       try {
         await appointmentsApi.update(noteAppointment.id, {
           session_note_id: noteId,
         });
         toast.success("Notatka została przypisana do wizyty");
-        fetchData(); // Refresh data
       } catch (error) {
         toast.error("Błąd podczas przypisywania notatki do wizyty");
       }
     }
+    fetchData(); // Refresh data
     setShowQuickNoteForm(false);
     setNoteAppointment(null);
   };
@@ -223,6 +247,7 @@ const Appointments: React.FC = () => {
   const handleQuickNoteCancel = () => {
     setShowQuickNoteForm(false);
     setNoteAppointment(null);
+    setEditingNoteContent(undefined);
   };
 
   const handleDeleteAppointment = async (id: number) => {
@@ -537,12 +562,22 @@ const Appointments: React.FC = () => {
                         <Button
                           size="sm"
                           variant="default"
-                          onClick={() => handleAddNote(appointment)}
-                          className="bg-blue-600 hover:bg-blue-700"
-                          title="Dodaj notatkę do wizyty"
+                          onClick={() => handleAddOrEditNote(appointment)}
+                          className={
+                            appointment.session_note_id
+                              ? "bg-amber-600 hover:bg-amber-700"
+                              : "bg-blue-600 hover:bg-blue-700"
+                          }
+                          title={
+                            appointment.session_note_id
+                              ? "Edytuj notatkę"
+                              : "Dodaj notatkę do wizyty"
+                          }
                         >
                           <FileText className="h-4 w-4 mr-1" />
-                          Dodaj notatkę
+                          {appointment.session_note_id
+                            ? "Edytuj notatkę"
+                            : "Dodaj notatkę"}
                         </Button>
 
                         <Button
@@ -691,6 +726,8 @@ const Appointments: React.FC = () => {
           patientName={noteAppointment.patient?.name || "Nieznany pacjent"}
           appointmentId={noteAppointment.id}
           appointmentDate={formatDate(noteAppointment.date)}
+          existingNoteId={noteAppointment.session_note_id}
+          existingNoteContent={editingNoteContent}
           onClose={handleQuickNoteCancel}
           onSuccess={handleQuickNoteSuccess}
         />

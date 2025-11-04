@@ -10,6 +10,8 @@ interface QuickSessionNoteFormProps {
   patientName: string;
   appointmentId: number;
   appointmentDate: string;
+  existingNoteId?: number;
+  existingNoteContent?: string;
   onClose: () => void;
   onSuccess: (noteId: number) => void;
 }
@@ -19,10 +21,13 @@ const QuickSessionNoteForm: React.FC<QuickSessionNoteFormProps> = ({
   patientName,
   appointmentId,
   appointmentDate,
+  existingNoteId,
+  existingNoteContent,
   onClose,
   onSuccess,
 }) => {
   const [loading, setLoading] = useState(false);
+  const isEditMode = !!existingNoteId;
 
   const {
     register,
@@ -31,16 +36,26 @@ const QuickSessionNoteForm: React.FC<QuickSessionNoteFormProps> = ({
   } = useForm<SessionNoteFormData>({
     defaultValues: {
       patient_id: patientId,
-      content: "",
+      content: existingNoteContent || "",
     },
   });
 
   const onSubmit = async (data: SessionNoteFormData) => {
     try {
       setLoading(true);
-      const newNote = await sessionNotesApi.create(data);
-      toast.success("Notatka została utworzona i przypisana do wizyty");
-      onSuccess(newNote.id);
+
+      if (isEditMode && existingNoteId) {
+        // Update existing note
+        await sessionNotesApi.update(existingNoteId, data.content);
+        toast.success("Notatka została zaktualizowana");
+        onSuccess(existingNoteId);
+      } else {
+        // Create new note
+        const newNote = await sessionNotesApi.create(data);
+        toast.success("Notatka została utworzona i przypisana do wizyty");
+        onSuccess(newNote.id);
+      }
+
       onClose();
     } catch (error: any) {
       if (error.response?.data?.detail) {
@@ -59,7 +74,9 @@ const QuickSessionNoteForm: React.FC<QuickSessionNoteFormProps> = ({
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Szybkie dodanie notatki z sesji
+            {isEditMode
+              ? "Edycja notatki z sesji"
+              : "Szybkie dodanie notatki z sesji"}
           </h2>
           <button
             onClick={onClose}
@@ -78,7 +95,9 @@ const QuickSessionNoteForm: React.FC<QuickSessionNoteFormProps> = ({
             <span className="font-medium">Data wizyty:</span> {appointmentDate}
           </p>
           <p className="text-xs text-blue-600 mt-2">
-            Notatka zostanie automatycznie przypisana do tej wizyty
+            {isEditMode
+              ? "Edytujesz notatkę przypisaną do tej wizyty"
+              : "Notatka zostanie automatycznie przypisana do tej wizyty"}
           </p>
         </div>
 
@@ -145,7 +164,11 @@ Zadania domowe:
               className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300 transition-colors flex items-center justify-center gap-2"
             >
               <Save size={18} />
-              {loading ? "Zapisywanie..." : "Zapisz i przypisz do wizyty"}
+              {loading
+                ? "Zapisywanie..."
+                : isEditMode
+                  ? "Zapisz zmiany"
+                  : "Zapisz i przypisz do wizyty"}
             </button>
           </div>
         </form>

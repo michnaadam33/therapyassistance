@@ -10,6 +10,7 @@ from app.models.user import User
 from app.schemas.session_note import (
     SessionNote as SessionNoteSchema,
     SessionNoteCreate,
+    SessionNoteUpdate,
 )
 
 router = APIRouter(prefix="/session_notes", tags=["session_notes"])
@@ -87,6 +88,47 @@ def create_session_note(
     db.commit()
     db.refresh(db_note)
     return db_note
+
+
+@router.get("/note/{note_id}", response_model=SessionNoteSchema)
+def get_session_note_by_id(
+    note_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> Any:
+    """
+    Pobierz konkretną notatkę po ID
+    """
+    note = db.query(SessionNote).filter(SessionNote.id == note_id).first()
+    if not note:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notatka nie została znaleziona",
+        )
+    return note
+
+
+@router.put("/note/{note_id}", response_model=SessionNoteSchema)
+def update_session_note(
+    note_id: int,
+    note_data: SessionNoteUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+) -> Any:
+    """
+    Zaktualizuj notatkę z sesji
+    """
+    note = db.query(SessionNote).filter(SessionNote.id == note_id).first()
+    if not note:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Notatka nie została znaleziona",
+        )
+
+    note.content = note_data.content
+    db.commit()
+    db.refresh(note)
+    return note
 
 
 @router.delete("/{note_id}")
