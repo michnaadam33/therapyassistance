@@ -11,10 +11,12 @@ import {
   Edit,
   Trash2,
   Filter,
+  FileText,
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import AppointmentForm from "../components/AppointmentForm";
+import QuickSessionNoteForm from "../components/QuickSessionNoteForm";
 import { appointmentsApi, patientsApi, paymentsApi } from "../services/api";
 import { Appointment, Patient, PaymentMethod } from "../types";
 import { formatDate, formatTime } from "@/lib/utils";
@@ -62,6 +64,9 @@ const Appointments: React.FC = () => {
   const [paymentAppointment, setPaymentAppointment] =
     useState<Appointment | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("CASH");
+  const [showQuickNoteForm, setShowQuickNoteForm] = useState(false);
+  const [noteAppointment, setNoteAppointment] =
+    useState<AppointmentWithPatient | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -191,6 +196,33 @@ const Appointments: React.FC = () => {
   const handlePaymentCancel = () => {
     setShowPaymentModal(false);
     setPaymentAppointment(null);
+  };
+
+  const handleAddNote = (appointment: AppointmentWithPatient) => {
+    setNoteAppointment(appointment);
+    setShowQuickNoteForm(true);
+  };
+
+  const handleQuickNoteSuccess = async (noteId: number) => {
+    // Update appointment with the new note
+    if (noteAppointment) {
+      try {
+        await appointmentsApi.update(noteAppointment.id, {
+          session_note_id: noteId,
+        });
+        toast.success("Notatka została przypisana do wizyty");
+        fetchData(); // Refresh data
+      } catch (error) {
+        toast.error("Błąd podczas przypisywania notatki do wizyty");
+      }
+    }
+    setShowQuickNoteForm(false);
+    setNoteAppointment(null);
+  };
+
+  const handleQuickNoteCancel = () => {
+    setShowQuickNoteForm(false);
+    setNoteAppointment(null);
   };
 
   const handleDeleteAppointment = async (id: number) => {
@@ -489,7 +521,7 @@ const Appointments: React.FC = () => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-2">
+                      <div className="flex flex-wrap gap-2">
                         {!appointment.is_paid && (
                           <Button
                             size="sm"
@@ -501,6 +533,17 @@ const Appointments: React.FC = () => {
                             Oznacz jako opłaconą
                           </Button>
                         )}
+
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() => handleAddNote(appointment)}
+                          className="bg-blue-600 hover:bg-blue-700"
+                          title="Dodaj notatkę do wizyty"
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          Dodaj notatkę
+                        </Button>
 
                         <Button
                           size="sm"
@@ -639,6 +682,18 @@ const Appointments: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Quick Note Form Modal */}
+      {showQuickNoteForm && noteAppointment && (
+        <QuickSessionNoteForm
+          patientId={noteAppointment.patient_id}
+          patientName={noteAppointment.patient?.name || "Nieznany pacjent"}
+          appointmentId={noteAppointment.id}
+          appointmentDate={formatDate(noteAppointment.date)}
+          onClose={handleQuickNoteCancel}
+          onSuccess={handleQuickNoteSuccess}
+        />
       )}
     </div>
   );

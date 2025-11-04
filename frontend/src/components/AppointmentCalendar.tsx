@@ -28,11 +28,13 @@ import {
   CheckCircle,
   XCircle,
   DollarSign,
+  FileText,
 } from "lucide-react";
 import { Appointment, Patient } from "../types";
 import { appointmentsApi, patientsApi } from "../services/api";
 import { toast } from "react-toastify";
 import AppointmentForm from "./AppointmentForm";
+import QuickSessionNoteForm from "./QuickSessionNoteForm";
 
 interface AppointmentWithPatient extends Appointment {
   patient?: Patient;
@@ -54,6 +56,9 @@ const AppointmentCalendar: React.FC = () => {
   const [formPreselectedDate, setFormPreselectedDate] = useState<
     Date | undefined
   >();
+  const [showQuickNoteForm, setShowQuickNoteForm] = useState(false);
+  const [noteAppointment, setNoteAppointment] =
+    useState<AppointmentWithPatient | null>(null);
 
   useEffect(() => {
     fetchAppointmentsAndPatients();
@@ -117,6 +122,32 @@ const AppointmentCalendar: React.FC = () => {
     } else {
       setCurrentDate(addDays(currentDate, 1));
     }
+  };
+
+  const handleAddNote = (appointment: AppointmentWithPatient) => {
+    setNoteAppointment(appointment);
+    setShowQuickNoteForm(true);
+  };
+
+  const handleQuickNoteSuccess = async (noteId: number) => {
+    if (noteAppointment) {
+      try {
+        await appointmentsApi.update(noteAppointment.id, {
+          session_note_id: noteId,
+        });
+        toast.success("Notatka została przypisana do wizyty");
+        fetchAppointmentsAndPatients();
+      } catch (error) {
+        toast.error("Błąd podczas przypisywania notatki do wizyty");
+      }
+    }
+    setShowQuickNoteForm(false);
+    setNoteAppointment(null);
+  };
+
+  const handleQuickNoteCancel = () => {
+    setShowQuickNoteForm(false);
+    setNoteAppointment(null);
   };
 
   const handleDeleteAppointment = async (id: number) => {
@@ -379,15 +410,27 @@ const AppointmentCalendar: React.FC = () => {
                             </div>
                           )}
                         </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteAppointment(appointment.id);
-                          }}
-                          className="p-2 text-red-600 hover:bg-red-100 rounded"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="flex gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddNote(appointment);
+                            }}
+                            className="p-2 text-blue-600 hover:bg-blue-100 rounded"
+                            title="Dodaj notatkę"
+                          >
+                            <FileText size={16} />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteAppointment(appointment.id);
+                            }}
+                            className="p-2 text-red-600 hover:bg-red-100 rounded"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -447,15 +490,27 @@ const AppointmentCalendar: React.FC = () => {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteAppointment(appointment.id);
-                    }}
-                    className="p-2 text-red-600 hover:bg-red-100 rounded"
-                  >
-                    <Trash2 size={18} />
-                  </button>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddNote(appointment);
+                      }}
+                      className="p-2 text-blue-600 hover:bg-blue-100 rounded"
+                      title="Dodaj notatkę"
+                    >
+                      <FileText size={18} />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteAppointment(appointment.id);
+                      }}
+                      className="p-2 text-red-600 hover:bg-red-100 rounded"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -558,6 +613,24 @@ const AppointmentCalendar: React.FC = () => {
           }}
           onSuccess={handleFormSuccess}
           preselectedDate={formPreselectedDate}
+        />
+      )}
+
+      {/* Quick Note Form Modal */}
+      {showQuickNoteForm && noteAppointment && (
+        <QuickSessionNoteForm
+          patientId={noteAppointment.patient_id}
+          patientName={noteAppointment.patient?.name || "Nieznany pacjent"}
+          appointmentId={noteAppointment.id}
+          appointmentDate={format(
+            parseISO(noteAppointment.date),
+            "dd.MM.yyyy",
+            {
+              locale: pl,
+            },
+          )}
+          onClose={handleQuickNoteCancel}
+          onSuccess={handleQuickNoteSuccess}
         />
       )}
     </div>
