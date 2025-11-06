@@ -65,13 +65,24 @@ check_requirements() {
     print_success "All requirements met!"
 }
 
+load_and_export_env() {
+    # Export all variables from .env file
+    set -a
+    source "$ENV_FILE"
+    set +a
+
+    # Build DATABASE_URL if not set or contains variable references
+    if [ -z "$DATABASE_URL" ] || [[ "$DATABASE_URL" == *'${'* ]]; then
+        DATABASE_URL="postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
+        export DATABASE_URL
+    fi
+}
+
 init_deployment() {
     print_info "Initializing Mikrus deployment..."
 
     check_requirements
-
-    # Load environment variables
-    source "$ENV_FILE"
+    load_and_export_env
 
     # Check if database credentials are set
     if [ -z "$DB_USER" ] || [ -z "$DB_PASSWORD" ]; then
@@ -98,7 +109,13 @@ init_deployment() {
             --network host \
             -v "$(pwd)":/app \
             -w /app \
-            --env-file "../$ENV_FILE" \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -e DB_HOST="$DB_HOST" \
+            -e DB_PORT="$DB_PORT" \
+            -e DB_USER="$DB_USER" \
+            -e DB_PASSWORD="$DB_PASSWORD" \
+            -e DB_NAME="$DB_NAME" \
+            -e SECRET_KEY="${SECRET_KEY:-changeme}" \
             python:3.11-slim \
             bash -c "pip install -q -r requirements.txt && alembic upgrade head"
         print_success "Database migrations completed!"
@@ -117,7 +134,13 @@ init_deployment() {
             --network host \
             -v "$(pwd)":/app \
             -w /app \
-            --env-file "../$ENV_FILE" \
+            -e DATABASE_URL="$DATABASE_URL" \
+            -e DB_HOST="$DB_HOST" \
+            -e DB_PORT="$DB_PORT" \
+            -e DB_USER="$DB_USER" \
+            -e DB_PASSWORD="$DB_PASSWORD" \
+            -e DB_NAME="$DB_NAME" \
+            -e SECRET_KEY="${SECRET_KEY:-changeme}" \
             python:3.11-slim \
             bash -c "pip install -q -r requirements.txt && python seed.py" || print_warning "Seeding skipped or failed"
         cd ..
@@ -190,8 +213,7 @@ status() {
 backup() {
     print_info "Creating backup..."
 
-    # Load environment variables
-    source "$ENV_FILE"
+    load_and_export_env
 
     BACKUP_DIR="backups"
     BACKUP_DATE=$(date +"%Y%m%d_%H%M%S")
@@ -250,8 +272,7 @@ restore() {
         exit 0
     fi
 
-    # Load environment variables
-    source "$ENV_FILE"
+    load_and_export_env
 
     print_info "Restoring database..."
     docker run --rm \
