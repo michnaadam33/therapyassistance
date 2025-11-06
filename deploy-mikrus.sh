@@ -56,9 +56,12 @@ check_requirements() {
     # Check if .env file exists
     if [ ! -f "$ENV_FILE" ]; then
         print_error ".env file not found!"
-        print_info "Please copy .env.mikrus.template to .env and configure it:"
-        echo "    cp .env.mikrus.template .env"
+        print_info "Please copy .env.mikrus.example to .env and configure it:"
+        echo "    cp .env.mikrus.example .env"
         echo "    nano .env"
+        echo ""
+        print_warning "IMPORTANT: For Mikrus, set DB_HOST to 'localhost' or '127.0.0.1'"
+        print_warning "           NOT 'db' (that's only for Docker Compose)"
         exit 1
     fi
 
@@ -75,6 +78,14 @@ load_and_export_env() {
     if [ -z "$DATABASE_URL" ] || [[ "$DATABASE_URL" == *'${'* ]]; then
         DATABASE_URL="postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}"
         export DATABASE_URL
+    fi
+
+    # Validate DB_HOST for Mikrus deployment
+    if [ "$DB_HOST" = "db" ]; then
+        print_error "DB_HOST is set to 'db' which is for Docker Compose only!"
+        print_warning "For Mikrus deployment, set DB_HOST to 'localhost' or '127.0.0.1'"
+        print_info "Edit your .env file and change DB_HOST value"
+        exit 1
     fi
 }
 
@@ -148,11 +159,15 @@ init_deployment() {
 
     print_success "Initialization complete!"
     print_info "Next steps:"
-    echo "  1. Configure Nginx: sudo cp nginx.mikrus.conf /etc/nginx/sites-available/$PROJECT_NAME"
-    echo "  2. Enable site: sudo ln -s /etc/nginx/sites-available/$PROJECT_NAME /etc/nginx/sites-enabled/"
-    echo "  3. Test Nginx: sudo nginx -t"
-    echo "  4. Reload Nginx: sudo systemctl reload nginx"
-    echo "  5. Deploy: ./deploy-mikrus.sh deploy"
+    echo "  1. Deploy application: ./deploy-mikrus.sh deploy"
+    echo "  2. Configure Nginx: sudo cp nginx.mikrus.conf /etc/nginx/sites-available/$PROJECT_NAME"
+    echo "  3. Enable site: sudo ln -s /etc/nginx/sites-available/$PROJECT_NAME /etc/nginx/sites-enabled/"
+    echo "  4. Test Nginx: sudo nginx -t"
+    echo "  5. Reload Nginx: sudo systemctl reload nginx"
+    echo ""
+    print_info "Application will be available at:"
+    echo "  Backend: http://localhost:8000"
+    echo "  API Docs: http://localhost:8000/docs"
 }
 
 deploy() {
