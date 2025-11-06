@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+
 import {
   Plus,
   Calendar,
@@ -26,13 +26,11 @@ import { Appointment, Patient, PaymentMethod } from "../types";
 import { formatDate, formatTime } from "@/lib/utils";
 import { toast } from "react-toastify";
 import {
-  format,
   startOfWeek,
   endOfWeek,
   startOfMonth,
   endOfMonth,
   isToday,
-  isFuture,
   parseISO,
   isWithinInterval,
 } from "date-fns";
@@ -48,7 +46,7 @@ const Appointments: React.FC = () => {
   const [appointments, setAppointments] = useState<AppointmentWithPatient[]>(
     [],
   );
-  const [patients, setPatients] = useState<Patient[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<"all" | "paid" | "unpaid">(
     "all",
@@ -527,15 +525,9 @@ const Appointments: React.FC = () => {
                     {/* Status - 1 kolumna */}
                     <div className="col-span-1 flex justify-center">
                       {appointment.is_paid ? (
-                        <CheckCircle
-                          className="h-4 w-4 text-green-600"
-                          title="Opłacona"
-                        />
+                        <CheckCircle className="h-4 w-4 text-green-600" />
                       ) : (
-                        <XCircle
-                          className="h-4 w-4 text-red-600"
-                          title="Nieopłacona"
-                        />
+                        <XCircle className="h-4 w-4 text-red-600" />
                       )}
                     </div>
 

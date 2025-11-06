@@ -19,7 +19,6 @@ interface QuickSessionNoteFormProps {
 const QuickSessionNoteForm: React.FC<QuickSessionNoteFormProps> = ({
   patientId,
   patientName,
-  appointmentId,
   appointmentDate,
   existingNoteId,
   existingNoteContent,
