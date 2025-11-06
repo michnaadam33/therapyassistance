@@ -8,8 +8,11 @@ services:
       dockerfile: Dockerfile
     container_name: therapyassistance-backend
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    userns_mode: "host"
+    network_mode: "host"
+    # ports not needed with network_mode: host
+    # ports:
+    #   - "8000:8000"
     environment:
       # Use shared PostgreSQL on Mikrus
       DATABASE_URL: postgresql+psycopg2://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}
@@ -21,8 +24,9 @@ services:
     volumes:
       - ./backend:/app
       - backend_logs:/app/logs
-    networks:
-      - therapyassistance-network
+    # networks not needed with network_mode: host
+    # networks:
+    #   - therapyassistance-network
     command: >
       sh -c "
         echo 'Waiting for database connection...' &&
@@ -30,16 +34,18 @@ services:
         alembic upgrade head 2>/dev/null || echo 'Alembic migrations skipped (run manually if needed)' &&
         uvicorn app.main:app --host 0.0.0.0 --port 8000
       "
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # Healthcheck disabled for Mikrus compatibility
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
 
-networks:
-  therapyassistance-network:
-    driver: bridge
+# networks not needed with network_mode: host
+# networks:
+#   therapyassistance-network:
+#     driver: bridge
 
 volumes:
   backend_logs:
