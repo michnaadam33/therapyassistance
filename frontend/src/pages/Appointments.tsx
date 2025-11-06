@@ -7,7 +7,6 @@ import {
   XCircle,
   Clock,
   User,
-  DollarSign,
   Edit,
   Trash2,
   Filter,
@@ -295,11 +294,11 @@ const Appointments: React.FC = () => {
       });
     }
 
-    // Sort by date and time (most recent first)
+    // Sort by date and time (chronologically - newest first)
     return filtered.sort((a, b) => {
-      const dateCompare = b.date.localeCompare(a.date);
-      if (dateCompare !== 0) return dateCompare;
-      return b.start_time.localeCompare(a.start_time);
+      const dateCompare = a.date.localeCompare(b.date);
+      if (dateCompare !== 0) return -dateCompare;
+      return -a.start_time.localeCompare(b.start_time);
     });
   };
 
@@ -333,43 +332,43 @@ const Appointments: React.FC = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-gray-600">Dzisiaj</div>
-            <div className="text-2xl font-bold text-gray-900">
+          <CardContent className="p-3">
+            <div className="text-xs text-gray-600">Dzisiaj</div>
+            <div className="text-xl font-bold text-gray-900">
               {stats.todayCount}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-gray-600">Ten tydzień</div>
-            <div className="text-2xl font-bold text-gray-900">
+          <CardContent className="p-3">
+            <div className="text-xs text-gray-600">Ten tydzień</div>
+            <div className="text-xl font-bold text-gray-900">
               {stats.weekCount}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-gray-600">Ten miesiąc</div>
-            <div className="text-2xl font-bold text-gray-900">
+          <CardContent className="p-3">
+            <div className="text-xs text-gray-600">Ten miesiąc</div>
+            <div className="text-xl font-bold text-gray-900">
               {stats.monthCount}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-gray-600">Opłacone</div>
-            <div className="text-2xl font-bold text-green-600">
+          <CardContent className="p-3">
+            <div className="text-xs text-gray-600">Opłacone</div>
+            <div className="text-xl font-bold text-green-600">
               {stats.paidCount}
             </div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
-            <div className="text-sm text-gray-600">Nieopłacone</div>
-            <div className="text-2xl font-bold text-red-600">
+          <CardContent className="p-3">
+            <div className="text-xs text-gray-600">Nieopłacone</div>
+            <div className="text-xl font-bold text-red-600">
               {stats.unpaidCount}
             </div>
           </CardContent>
@@ -378,7 +377,7 @@ const Appointments: React.FC = () => {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4">
+        <CardContent className="p-3">
           <div className="flex flex-wrap gap-4 items-center">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-gray-500" />
@@ -477,128 +476,120 @@ const Appointments: React.FC = () => {
         </CardHeader>
         <CardContent>
           {filteredAppointments.length > 0 ? (
-            <div className="space-y-3">
+            <div className="space-y-1">
+              {/* Nagłówek kolumn */}
+              <div className="grid grid-cols-12 gap-2 items-center text-xs font-medium text-gray-500 uppercase tracking-wider px-3 py-2 border-b">
+                <div className="col-span-3">Pacjent</div>
+                <div className="col-span-2">Data</div>
+                <div className="col-span-2">Godziny</div>
+                <div className="col-span-1 text-right">Cena</div>
+                <div className="col-span-1 text-center">Status</div>
+                <div className="col-span-3 text-right">Akcje</div>
+              </div>
+
               {filteredAppointments.map((appointment) => (
                 <div
                   key={appointment.id}
-                  className={`p-4 rounded-lg border-2 transition-all ${
+                  className={`px-3 py-2 rounded border transition-all hover:shadow-md cursor-pointer ${
                     appointment.is_paid
-                      ? "border-green-200 bg-green-50"
-                      : "border-red-200 bg-red-50"
+                      ? "border-green-200 bg-green-50/50 hover:bg-green-100/50"
+                      : "border-red-200 bg-red-50/50 hover:bg-red-100/50"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-4">
-                    {/* Main Info */}
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-3">
-                        <User className="h-5 w-5 text-gray-500" />
-                        <span className="font-semibold text-gray-900">
-                          {appointment.patient?.name || "Nieznany pacjent"}
-                        </span>
-                      </div>
+                  <div className="grid grid-cols-12 gap-2 items-center text-sm">
+                    {/* Pacjent - 3 kolumny */}
+                    <div className="col-span-3 flex items-center gap-1.5 min-w-0">
+                      <User className="h-3.5 w-3.5 text-gray-400 flex-shrink-0" />
+                      <span className="font-medium text-gray-900 truncate">
+                        {appointment.patient?.name || "Nieznany"}
+                      </span>
+                    </div>
 
-                      <div className="flex items-center gap-3">
-                        <Calendar className="h-4 w-4 text-gray-500" />
-                        <span className="text-gray-700">
-                          {formatDate(appointment.date)}
-                        </span>
-                      </div>
+                    {/* Data - 2 kolumny */}
+                    <div className="col-span-2 text-gray-700 truncate">
+                      {formatDate(appointment.date)}
+                    </div>
 
-                      <div className="flex items-center gap-3">
-                        <Clock className="h-4 w-4 text-gray-500" />
-                        <span className="text-gray-700">
-                          {formatTime(appointment.start_time)} -{" "}
-                          {formatTime(appointment.end_time)}
-                        </span>
-                      </div>
+                    {/* Godziny - 2 kolumny */}
+                    <div className="col-span-2 flex items-center gap-1 text-gray-700">
+                      <Clock className="h-3 w-3 text-gray-400 flex-shrink-0" />
+                      <span className="truncate">
+                        {formatTime(appointment.start_time)}-
+                        {formatTime(appointment.end_time)}
+                      </span>
+                    </div>
 
-                      {appointment.price && (
-                        <div className="flex items-center gap-3">
-                          <DollarSign className="h-4 w-4 text-gray-500" />
-                          <span className="text-gray-700">
-                            {appointment.price} zł
-                          </span>
-                        </div>
+                    {/* Cena - 1 kolumna */}
+                    <div className="col-span-1 text-gray-700 font-medium text-right">
+                      {appointment.price ? `${appointment.price} zł` : "-"}
+                    </div>
+
+                    {/* Status - 1 kolumna */}
+                    <div className="col-span-1 flex justify-center">
+                      {appointment.is_paid ? (
+                        <CheckCircle
+                          className="h-4 w-4 text-green-600"
+                          title="Opłacona"
+                        />
+                      ) : (
+                        <XCircle
+                          className="h-4 w-4 text-red-600"
+                          title="Nieopłacona"
+                        />
                       )}
                     </div>
 
-                    {/* Status and Actions */}
-                    <div className="flex flex-col items-end gap-3">
-                      {/* Payment Status Badge */}
-                      <div
-                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                          appointment.is_paid
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {appointment.is_paid ? (
-                          <>
-                            <CheckCircle className="h-4 w-4" />
-                            Opłacona
-                          </>
-                        ) : (
-                          <>
-                            <XCircle className="h-4 w-4" />
-                            Nieopłacona
-                          </>
-                        )}
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="flex flex-wrap gap-2">
-                        {!appointment.is_paid && (
-                          <Button
-                            size="sm"
-                            variant="default"
-                            onClick={() => handleTogglePaid(appointment)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Oznacz jako opłaconą
-                          </Button>
-                        )}
-
+                    {/* Akcje - 3 kolumny */}
+                    <div className="col-span-3 flex items-center justify-end gap-1">
+                      {!appointment.is_paid && (
                         <Button
                           size="sm"
                           variant="default"
-                          onClick={() => handleAddOrEditNote(appointment)}
-                          className={
-                            appointment.session_note_id
-                              ? "bg-amber-600 hover:bg-amber-700"
-                              : "bg-blue-600 hover:bg-blue-700"
-                          }
-                          title={
-                            appointment.session_note_id
-                              ? "Edytuj notatkę"
-                              : "Dodaj notatkę do wizyty"
-                          }
+                          onClick={() => handleTogglePaid(appointment)}
+                          className="bg-green-600 hover:bg-green-700 h-7 px-2 text-xs"
+                          title="Oznacz jako opłaconą"
                         >
-                          <FileText className="h-4 w-4 mr-1" />
-                          {appointment.session_note_id
+                          <CheckCircle className="h-3 w-3" />
+                        </Button>
+                      )}
+
+                      <Button
+                        size="sm"
+                        variant="default"
+                        onClick={() => handleAddOrEditNote(appointment)}
+                        className={`h-7 px-2 ${
+                          appointment.session_note_id
+                            ? "bg-amber-600 hover:bg-amber-700"
+                            : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                        title={
+                          appointment.session_note_id
                             ? "Edytuj notatkę"
-                            : "Dodaj notatkę"}
-                        </Button>
+                            : "Dodaj notatkę"
+                        }
+                      >
+                        <FileText className="h-3 w-3" />
+                      </Button>
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEditAppointment(appointment)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditAppointment(appointment)}
+                        className="h-7 px-2"
+                        title="Edytuj wizytę"
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
 
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            handleDeleteAppointment(appointment.id)
-                          }
-                          className="border-red-300 text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteAppointment(appointment.id)}
+                        className="border-red-300 text-red-700 hover:bg-red-50 h-7 px-2"
+                        title="Usuń wizytę"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
                     </div>
                   </div>
                 </div>
