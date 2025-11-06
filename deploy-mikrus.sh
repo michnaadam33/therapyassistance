@@ -81,6 +81,7 @@ init_deployment() {
 
     print_info "Testing database connection..."
     if docker run --rm \
+        --network host \
         -e PGPASSWORD="$DB_PASSWORD" \
         postgres:15-alpine \
         psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "SELECT 1;" &> /dev/null; then
@@ -94,6 +95,7 @@ init_deployment() {
     cd "$BACKEND_DIR"
     if [ -d "alembic" ]; then
         docker run --rm \
+            --network host \
             -v "$(pwd)":/app \
             -w /app \
             --env-file "../$ENV_FILE" \
@@ -112,6 +114,7 @@ init_deployment() {
         print_info "Seeding database..."
         cd "$BACKEND_DIR"
         docker run --rm \
+            --network host \
             -v "$(pwd)":/app \
             -w /app \
             --env-file "../$ENV_FILE" \
@@ -199,6 +202,7 @@ backup() {
     # Backup database
     print_info "Backing up database..."
     docker run --rm \
+        --network host \
         -e PGPASSWORD="$DB_PASSWORD" \
         -v "$(pwd)/$BACKUP_DIR":/backup \
         postgres:15-alpine \
@@ -251,6 +255,7 @@ restore() {
 
     print_info "Restoring database..."
     docker run --rm \
+        --network host \
         -e PGPASSWORD="$DB_PASSWORD" \
         -v "$(pwd)/$(dirname "$BACKUP_FILE")":/backup \
         postgres:15-alpine \
