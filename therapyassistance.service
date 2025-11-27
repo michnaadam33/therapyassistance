@@ -1,0 +1,24 @@
+[Unit]
+Description=TherapyAssistance FastAPI Backend
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=YOUR_USERNAME_HERE
+Group=YOUR_USERNAME_HERE
+WorkingDirectory=/home/YOUR_USERNAME_HERE/therapyassistance/backend
+Environment="PATH=/home/YOUR_USERNAME_HERE/therapyassistance/backend/venv/bin"
+EnvironmentFile=/home/YOUR_USERNAME_HERE/therapyassistance/.env.production
+ExecStart=/home/YOUR_USERNAME_HERE/therapyassistance/backend/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2 --log-level info --proxy-headers --forwarded-allow-ips='*'
+Restart=always
+RestartSec=10
+StandardOutput=append:/home/YOUR_USERNAME_HERE/therapyassistance/logs/backend.log
+StandardError=append:/home/YOUR_USERNAME_HERE/therapyassistance/logs/backend.error.log
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

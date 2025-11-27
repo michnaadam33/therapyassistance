@@ -6,13 +6,32 @@ Pełna aplikacja webowa (backend + frontend) dla psychoterapeutów.
 
 ## 🚀 Wdrożenie Produkcyjne
 
+### 🆕 Wdrożenie Backend na mikr.us (BEZ Dockera)
+
+**Dokumentacja dla wdrożenia na mikr.us:**
+- 👉 **[START_HERE.md](START_HERE.md)** - **ZACZNIJ TUTAJ!** Szybki start w 3 krokach
+- 📖 [QUICK_DEPLOY_MIKRUS.md](QUICK_DEPLOY_MIKRUS.md) - Przewodnik krok po kroku (15 min)
+- 📚 [MIKRUS_DEPLOYMENT.md](MIKRUS_DEPLOYMENT.md) - Pełna dokumentacja z troubleshootingiem
+- 📋 [MIKRUS_FILES.md](MIKRUS_FILES.md) - Lista wszystkich plików wdrożeniowych
+- 🧪 [API_TEST_COMMANDS.md](API_TEST_COMMANDS.md) - Komendy do testowania API
+
+**Gotowe skrypty:**
+- ✅ `setup-mikrus.sh` - Automatyczna instalacja
+- ✅ `start-mikrus.sh` - Skrypt startowy
+- ✅ `therapyassistance.service` - Konfiguracja systemd (autostart)
+- ✅ `nginx-mikrus-http.conf` - Konfiguracja nginx
+
+**URL docelowy:** `https://api.therapyassistance.io`
+
+---
+
 ### Najtańsza opcja: Vercel + Mikrus = **75 zł/rok**
 
 - **Frontend**: Vercel (darmowy hosting)
 - **Backend + DB**: Mikrus VPS 2.1 (75 zł/rok)
 - **PostgreSQL**: Współdzielona baza na Mikrus (w cenie)
 
-📚 **Dokumentacja wdrożenia:**
+📚 **Dokumentacja wdrożenia z Dockerem:**
 - [📑 INDEKS - Zacznij tutaj!](DEPLOYMENT_INDEX.md) - Przegląd wszystkich dokumentów
 - [📖 Pełny przewodnik](DEPLOYMENT_GUIDE.md) - Szczegółowy przewodnik krok po kroku
 - [⚡ Szybki start](DEPLOYMENT_QUICKSTART.md) - Komendy i checklist (10 minut)
