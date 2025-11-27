@@ -24,9 +24,9 @@ import {
 // - Localhost: użyj http://localhost:8000
 const isVercel =
   typeof window !== "undefined" &&
-  window.location.hostname.includes("vercel.app");
+  window.location.hostname.includes("therapyassistance.io");
 const API_URL = isVercel
-  ? ""
+  ? "https://api.therapyassistance.io"
   : import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const api = axios.create({
