@@ -91,7 +91,6 @@ const Appointments: React.FC = () => {
       }));
 
       setAppointments(appointmentsWithPatients);
-      setPatients(patientsData);
       calculateStats(appointmentsWithPatients);
     } catch (error) {
       console.error("Error fetching data:", error);
