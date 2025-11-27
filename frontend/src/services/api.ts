@@ -19,7 +19,15 @@ import {
   PaymentStatistics,
 } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+// Automatycznie wykryj środowisko:
+// - Vercel: użyj relative paths (rewrites w vercel.json przekierują do API)
+// - Localhost: użyj http://localhost:8000
+const isVercel =
+  typeof window !== "undefined" &&
+  window.location.hostname.includes("vercel.app");
+const API_URL = isVercel
+  ? ""
+  : import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const api = axios.create({
   baseURL: API_URL,
