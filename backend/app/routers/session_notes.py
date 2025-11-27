@@ -1,14 +1,17 @@
+from typing import Any, List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Any
 
 from app.core.database import get_db
 from app.core.deps import get_current_active_user
-from app.models.session_note import SessionNote
 from app.models.patient import Patient
+from app.models.session_note import SessionNote
 from app.models.user import User
 from app.schemas.session_note import (
     SessionNote as SessionNoteSchema,
+)
+from app.schemas.session_note import (
     SessionNoteCreate,
     SessionNoteUpdate,
 )
@@ -16,7 +19,7 @@ from app.schemas.session_note import (
 router = APIRouter(prefix="/session_notes", tags=["session_notes"])
 
 
-@router.get("/", response_model=List[SessionNoteSchema])
+@router.get("", response_model=List[SessionNoteSchema])
 def get_all_session_notes(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -66,7 +69,7 @@ def get_session_notes(
     return session_notes
 
 
-@router.post("/", response_model=SessionNoteSchema)
+@router.post("", response_model=SessionNoteSchema)
 def create_session_note(
     note_data: SessionNoteCreate,
     db: Session = Depends(get_db),

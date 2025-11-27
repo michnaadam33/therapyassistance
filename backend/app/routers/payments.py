@@ -1,27 +1,30 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session, joinedload
-from typing import List, Optional
-from datetime import datetime, date
+from datetime import date, datetime
 from decimal import Decimal
+from typing import List, Optional
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy.orm import Session, joinedload
 
 from app.core.database import get_db
 from app.core.deps import get_current_active_user
-from app.models.payment import Payment, PaymentMethod
 from app.models.appointment import Appointment
 from app.models.patient import Patient
+from app.models.payment import Payment, PaymentMethod
 from app.models.user import User
 from app.schemas.payment import (
     Payment as PaymentSchema,
+)
+from app.schemas.payment import (
     PaymentCreate,
+    PaymentListResponse,
     PaymentUpdate,
     PaymentWithPatient,
-    PaymentListResponse,
 )
 
 router = APIRouter(prefix="/payments", tags=["payments"])
 
 
-@router.post("/", response_model=PaymentSchema)
+@router.post("", response_model=PaymentSchema)
 def create_payment(
     payment_data: PaymentCreate,
     db: Session = Depends(get_db),
@@ -101,7 +104,7 @@ def create_payment(
     return db_payment
 
 
-@router.get("/", response_model=PaymentListResponse)
+@router.get("", response_model=PaymentListResponse)
 def get_payments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),

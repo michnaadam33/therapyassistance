@@ -8,27 +8,27 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://your-domain.mikr.us/api/:path*"
+      "destination": "http://api.therapyassistance.io/api/:path*"
     },
     {
       "source": "/auth/:path*",
-      "destination": "https://your-domain.mikr.us/auth/:path*"
+      "destination": "http://api.therapyassistance.io/auth/:path*"
     },
     {
       "source": "/patients/:path*",
-      "destination": "https://your-domain.mikr.us/patients/:path*"
+      "destination": "http://api.therapyassistance.io/patients/:path*"
     },
     {
       "source": "/appointments/:path*",
-      "destination": "https://your-domain.mikr.us/appointments/:path*"
+      "destination": "http://api.therapyassistance.io/appointments/:path*"
     },
     {
       "source": "/session_notes/:path*",
-      "destination": "https://your-domain.mikr.us/session_notes/:path*"
+      "destination": "http://api.therapyassistance.io/session_notes/:path*"
     },
     {
       "source": "/payments/:path*",
-      "destination": "https://your-domain.mikr.us/payments/:path*"
+      "destination": "http://api.therapyassistance.io/payments/:path*"
     }
   ],
   "headers": [
@@ -51,6 +51,6 @@
     }
   ],
   "env": {
-    "VITE_API_URL": "https://your-domain.mikr.us"
+    "VITE_API_URL": "http://api.therapyassistance.io"
   }
 }

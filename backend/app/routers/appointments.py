@@ -1,7 +1,8 @@
+from datetime import date, datetime
+from typing import Any, List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Any
-from datetime import date, datetime
 
 from app.core.database import get_db
 from app.core.deps import get_current_active_user
@@ -10,6 +11,8 @@ from app.models.patient import Patient
 from app.models.user import User
 from app.schemas.appointment import (
     Appointment as AppointmentSchema,
+)
+from app.schemas.appointment import (
     AppointmentCreate,
     AppointmentUpdate,
 )
@@ -17,7 +20,7 @@ from app.schemas.appointment import (
 router = APIRouter(prefix="/appointments", tags=["appointments"])
 
 
-@router.get("/", response_model=List[AppointmentSchema])
+@router.get("", response_model=List[AppointmentSchema])
 def get_appointments(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -58,7 +61,7 @@ def get_appointment(
     return appointment
 
 
-@router.post("/", response_model=AppointmentSchema)
+@router.post("", response_model=AppointmentSchema)
 def create_appointment(
     appointment_data: AppointmentCreate,
     db: Session = Depends(get_db),

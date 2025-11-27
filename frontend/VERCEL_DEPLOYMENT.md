@@ -54,9 +54,9 @@ Click **"Environment Variables"** and add:
 
 | Name | Value | Description |
 |------|-------|-------------|
-| `VITE_API_URL` | `https://m1234.mikr.us` | Your Mikrus backend URL |
+| `VITE_API_URL` | `http://api.therapyassistance.io` | Your backend API URL |
 
-**⚠️ IMPORTANT:** Replace `m1234.mikr.us` with your actual Mikrus hostname!
+**⚠️ IMPORTANT:** Make sure your backend is accessible at this URL!
 
 ---
 
@@ -72,11 +72,11 @@ Click **"Environment Variables"** and add:
 
 ### Update Backend CORS
 
-After getting your Vercel URL, update CORS on Mikrus:
+After getting your Vercel URL, update CORS on your backend:
 
 ```bash
-# SSH to your VPS
-ssh root@m1234.mikr.us
+# SSH to your VPS (if applicable)
+ssh root@your-server.com
 
 # Edit .env
 cd /opt/apps/therapyassistance
@@ -234,7 +234,7 @@ npm run preview  # Test production build
 
 **Test Backend:**
 ```bash
-curl https://m1234.mikr.us/health
+curl http://api.therapyassistance.io/health
 # Should return: {"status":"healthy"}
 ```
 
@@ -361,8 +361,8 @@ Vercel will email you. You can:
 
 ### Before Deploy:
 - [ ] Code pushed to GitHub
-- [ ] Backend deployed on Mikrus
-- [ ] Backend URL known (e.g., https://m1234.mikr.us)
+- [ ] Backend deployed and accessible
+- [ ] Backend URL: http://api.therapyassistance.io
 - [ ] Vercel account created
 
 ### During Deploy:

@@ -1,17 +1,19 @@
+from typing import Any, List
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Any
 
 from app.core.database import get_db
 from app.core.deps import get_current_active_user
 from app.models.patient import Patient
 from app.models.user import User
-from app.schemas.patient import Patient as PatientSchema, PatientCreate, PatientUpdate
+from app.schemas.patient import Patient as PatientSchema
+from app.schemas.patient import PatientCreate, PatientUpdate
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
 
-@router.get("/", response_model=List[PatientSchema])
+@router.get("", response_model=List[PatientSchema])
 def get_patients(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_active_user),
@@ -43,7 +45,7 @@ def get_patient(
     return patient
 
 
-@router.post("/", response_model=PatientSchema)
+@router.post("", response_model=PatientSchema)
 def create_patient(
     patient_data: PatientCreate,
     db: Session = Depends(get_db),
