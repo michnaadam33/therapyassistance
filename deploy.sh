@@ -76,7 +76,7 @@ install_system_packages() {
     # Node.js 20 LTS (jeśli nie ma)
     if ! command -v node &>/dev/null || [[ $(node -v | cut -d. -f1 | tr -d 'v') -lt 18 ]]; then
         info "Instaluję Node.js 20 LTS..."
-        curl -fsSL https://deb.nodesource.com/setup_20.x | bash - -qq
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
         apt-get install -y nodejs -qq
         ok "Node.js $(node -v) zainstalowany"
     else
