@@ -1,7 +1,8 @@
-from pydantic_settings import BaseSettings
-from typing import Optional
 import os
+from typing import Optional
+
 from dotenv import load_dotenv
+from pydantic_settings import BaseSettings
 
 load_dotenv()
 
@@ -20,7 +21,8 @@ class Settings(BaseSettings):
 
     # CORS
     CORS_ORIGINS: list = os.getenv(
-        "ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000"
+        "ALLOWED_ORIGINS",
+        "http://localhost:5173,http://localhost:3000,https://therapyassistance.io,https://www.therapyassistance.io",
     ).split(",")
 
     # API

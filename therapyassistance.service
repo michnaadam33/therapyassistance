@@ -1,3 +1,11 @@
+# Ten plik jest generowany automatycznie przez deploy.sh
+# i instalowany do /etc/systemd/system/therapyassistance.service
+#
+# Ręczna instalacja (zastąp USERNAME swoją nazwą użytkownika):
+#   sed 's|YOUR_USERNAME_HERE|USERNAME|g' therapyassistance.service \
+#       | sudo tee /etc/systemd/system/therapyassistance.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now therapyassistance
+
 [Unit]
 Description=TherapyAssistance FastAPI Backend
 After=network.target postgresql.service
@@ -15,8 +23,6 @@ Restart=always
 RestartSec=10
 StandardOutput=append:/home/YOUR_USERNAME_HERE/therapyassistance/logs/backend.log
 StandardError=append:/home/YOUR_USERNAME_HERE/therapyassistance/logs/backend.error.log
-
-# Security settings
 NoNewPrivileges=true
 PrivateTmp=true
 
