@@ -20,13 +20,13 @@ import {
 } from "../types";
 
 // Automatycznie wykryj środowisko:
-// - Produkcja (therapyassistance.io): użyj https://api.therapyassistance.io
-// - Lokalnie: użyj VITE_API_URL lub fallback do http://localhost:8000
+// - Produkcja (therapyassistance.io): API pod /api na tej samej domenie
+// - Lokalnie: VITE_API_URL lub fallback do http://localhost:8000
 const isProduction =
   typeof window !== "undefined" &&
   window.location.hostname.includes("therapyassistance.io");
 const API_URL = isProduction
-  ? "https://api.therapyassistance.io"
+  ? "/api"
   : import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 const api = axios.create({
